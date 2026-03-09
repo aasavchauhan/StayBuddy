@@ -1,6 +1,10 @@
 package com.example.staybuddy.utils
 
 object Constants {
+    // Google Sign-In
+    // TODO: Replace with your actual Web Client ID from Firebase Console / Google Cloud Console
+    const val WEB_CLIENT_ID = "611800697150-lcqo34l8r50v1brm6dsnf7bkrjb5pslr.apps.googleusercontent.com"
+
     // Firestore Collections
     const val USERS_COLLECTION = "users"
     const val PG_LISTINGS_COLLECTION = "pg_listings"
@@ -32,6 +36,10 @@ object Constants {
     const val DATASTORE_NAME = "staybuddy_preferences"
     const val KEY_ONBOARDING_COMPLETED = "onboarding_completed"
     const val KEY_USER_ROLE = "user_role"
+    const val KEY_SELECTED_CITY = "selected_city"
+    const val KEY_SELECTED_UNIVERSITY = "selected_university"
+    const val KEY_LATITUDE = "latitude"
+    const val KEY_LONGITUDE = "longitude"
 
     // Amenities
     val AMENITIES_LIST = listOf(

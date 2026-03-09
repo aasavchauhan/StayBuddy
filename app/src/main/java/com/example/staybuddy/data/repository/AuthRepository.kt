@@ -6,14 +6,18 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
+import android.net.Uri
+import java.util.UUID
 
 @Singleton
 class AuthRepository @Inject constructor(
     private val auth: FirebaseAuth,
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    private val storage: FirebaseStorage
 ) {
     val currentUser: FirebaseUser? get() = auth.currentUser
 
@@ -57,6 +61,18 @@ class AuthRepository @Inject constructor(
         }
     }
 
+    suspend fun updateUser(user: User): Result<Unit> {
+        return try {
+            firestore.collection(Constants.USERS_COLLECTION)
+                .document(user.userId)
+                .set(user) // Or update() if partial
+                .await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     suspend fun getUserFromFirestore(userId: String): Result<User?> {
         return try {
             val doc = firestore.collection(Constants.USERS_COLLECTION)
@@ -65,6 +81,18 @@ class AuthRepository @Inject constructor(
                 .await()
             val user = doc.toObject(User::class.java)
             Result.success(user)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun uploadProfileImage(uri: Uri): Result<String> {
+        return try {
+            val fileName = UUID.randomUUID().toString()
+            val ref = storage.reference.child("${Constants.PROFILE_IMAGES_PATH}/$fileName")
+            ref.putFile(uri).await()
+            val downloadUrl = ref.downloadUrl.await()
+            Result.success(downloadUrl.toString())
         } catch (e: Exception) {
             Result.failure(e)
         }

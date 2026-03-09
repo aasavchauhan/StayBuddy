@@ -10,26 +10,36 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.staybuddy.data.model.RoommatePostType
+import com.example.staybuddy.ui.components.LocationPicker
+import org.osmdroid.util.GeoPoint
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.PinDrop
+import androidx.compose.material.icons.filled.MyLocation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddRoommatePostScreen(
     onNavigateBack: () -> Unit,
+    onPostAdded: () -> Unit,
     viewModel: AddRoommatePostViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scrollState = rememberScrollState()
+    var showMapPicker by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess) {
-            onNavigateBack()
+            onPostAdded()
         }
     }
 
@@ -49,7 +59,7 @@ fun AddRoommatePostScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Post Roommate Request") },
+                title = { Text(if (uiState.isEditing) "Edit Roommate Request" else "Post Roommate Request") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
@@ -71,11 +81,32 @@ fun AddRoommatePostScreen(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+
+            // Post Type Toggle
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("I am...", style = MaterialTheme.typography.labelLarge)
+                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                    SegmentedButton(
+                        selected = uiState.postType == RoommatePostType.OFFER,
+                        onClick = { viewModel.setPostType(RoommatePostType.OFFER) },
+                        shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2)
+                    ) {
+                        Text("Offering a Room")
+                    }
+                    SegmentedButton(
+                        selected = uiState.postType == RoommatePostType.SEEK,
+                        onClick = { viewModel.setPostType(RoommatePostType.SEEK) },
+                        shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2)
+                    ) {
+                        Text("Searching for a Room")
+                    }
+                }
+            }
             
             OutlinedTextField(
                 value = uiState.city,
                 onValueChange = { viewModel.updateField("city", it) },
-                label = { Text("City (e.g. Bangalore)") },
+                label = { Text("City (e.g. Vadodara)") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
@@ -83,9 +114,47 @@ fun AddRoommatePostScreen(
             OutlinedTextField(
                 value = uiState.location,
                 onValueChange = { viewModel.updateField("location", it) },
-                label = { Text("Area/Locality (e.g. Koramangala)") },
+                label = { Text("Area/Locality (e.g. Sayajigunj)") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
+            )
+
+            OutlinedTextField(
+                value = uiState.address,
+                onValueChange = { viewModel.updateField("address", it) },
+                label = { Text("Full Address (Optional)") },
+                modifier = Modifier.fillMaxWidth(),
+                supportingText = { 
+                    if (uiState.latitude != null) {
+                        Text("Location Pinned: ${uiState.latitude}, ${uiState.longitude}", color = MaterialTheme.colorScheme.primary)
+                    }
+                },
+                trailingIcon = {
+                    IconButton(onClick = { showMapPicker = true }) {
+                        Icon(
+                            imageVector = if (uiState.latitude != null) Icons.Default.MyLocation else Icons.Default.PinDrop,
+                            contentDescription = "Pin on Map",
+                            tint = if (uiState.latitude != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                },
+                minLines = 2
+            )
+
+            OutlinedTextField(
+                value = uiState.roomType,
+                onValueChange = { viewModel.updateField("roomType", it) },
+                label = { Text("Room Type (e.g. Shared, Single, Flat)") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+
+            OutlinedTextField(
+                value = uiState.description,
+                onValueChange = { viewModel.updateField("description", it) },
+                label = { Text("Description (e.g. Looking for a quiet roommate...)") },
+                modifier = Modifier.fillMaxWidth(),
+                minLines = 3
             )
             
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -98,11 +167,24 @@ fun AddRoommatePostScreen(
                     singleLine = true
                 )
                 
+                if (uiState.postType == RoommatePostType.OFFER) {
+                    OutlinedTextField(
+                        value = uiState.availableBeds,
+                        onValueChange = { viewModel.updateField("availableBeds", it) },
+                        label = { Text("Beds Available") },
+                        modifier = Modifier.weight(1f),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true
+                    )
+                }
+            }
+
+            if (uiState.postType == RoommatePostType.OFFER) {
                 OutlinedTextField(
-                    value = uiState.availableBeds,
-                    onValueChange = { viewModel.updateField("availableBeds", it) },
-                    label = { Text("Beds Available") },
-                    modifier = Modifier.weight(1f),
+                    value = uiState.totalBeds,
+                    onValueChange = { viewModel.updateField("totalBeds", it) },
+                    label = { Text("Total Beds in Room/Flat") },
+                    modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true
                 )
@@ -156,8 +238,25 @@ fun AddRoommatePostScreen(
                 if (uiState.isLoading) {
                     CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onPrimary)
                 } else {
-                    Text("Post Request")
+                    Text(if (uiState.isEditing) "Update Request" else "Post Request")
                 }
+            }
+        }
+    }
+
+    if (showMapPicker) {
+        ModalBottomSheet(
+            onDismissRequest = { showMapPicker = false },
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        ) {
+            Box(modifier = Modifier.fillMaxHeight(0.8f)) {
+                LocationPicker(
+                    initialLocation = if (uiState.latitude != null) GeoPoint(uiState.latitude!!, uiState.longitude!!) else null,
+                    onLocationSelected = { geoPoint ->
+                        viewModel.updateLocation(geoPoint.latitude, geoPoint.longitude, uiState.address)
+                        showMapPicker = false
+                    }
+                )
             }
         }
     }

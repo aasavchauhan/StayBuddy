@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.navigation.compose.hiltViewModel       
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.staybuddy.ui.navigation.BottomNavItems
@@ -43,7 +43,7 @@ fun MainApp(viewModel: MainViewModel = hiltViewModel()) {
         Screen.Home.route,
         Screen.Search.route,
         Screen.RoommateList.route,
-        Screen.AddListing.route,
+        Screen.AddListing.ROUTE,
         Screen.ChatList.route,
         Screen.Profile.route
     )

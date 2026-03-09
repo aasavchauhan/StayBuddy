@@ -29,10 +29,27 @@ class SplashViewModel @Inject constructor(
     fun checkAuthState() {
         viewModelScope.launch {
             val isOnboardingCompleted = preferenceManager.isOnboardingCompleted.first()
-            _destination.value = when {
-                !isOnboardingCompleted -> SplashDestination.Onboarding
-                authRepository.currentUser != null -> SplashDestination.Home
-                else -> SplashDestination.Login
+            if (!isOnboardingCompleted) {
+                _destination.value = SplashDestination.Onboarding
+                return@launch
+            }
+            
+            val currentUser = authRepository.currentUser
+            if (currentUser != null) {
+                // Ensure the user has a Firestore profile even if they logged in previously before the fix
+                val profileResult = authRepository.getUserFromFirestore(currentUser.uid)
+                if (profileResult.isSuccess && profileResult.getOrNull() == null) {
+                    val newUser = com.example.staybuddy.data.model.User(
+                        userId = currentUser.uid,
+                        name = currentUser.displayName ?: "New User",
+                        email = currentUser.email ?: "",
+                        role = "student"
+                    )
+                    authRepository.saveUserToFirestore(newUser)
+                }
+                _destination.value = SplashDestination.Home
+            } else {
+                _destination.value = SplashDestination.Login
             }
         }
     }

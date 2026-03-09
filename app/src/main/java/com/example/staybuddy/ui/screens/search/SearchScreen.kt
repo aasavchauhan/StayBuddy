@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.ViewList
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,7 +37,7 @@ fun SearchScreen(
     onNavigateBack: () -> Unit,
     viewModel: SearchViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val focusManager = LocalFocusManager.current
 
     Scaffold(
@@ -299,13 +300,7 @@ fun FilterBottomSheet(
                 fontWeight = FontWeight.SemiBold
             )
             Spacer(modifier = Modifier.height(8.dp))
-            @OptIn(ExperimentalLayoutApi::class)
-            FlowRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                listOf("WiFi", "AC", "Food", "Laundry", "Power Backup", "Gym").forEach { amenity ->
+            androidx.compose.foundation.lazy.LazyRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) { items(listOf("WiFi", "AC", "Food", "Laundry", "Power Backup", "Gym")) { amenity ->
                     FilterChip(
                         selected = uiState.selectedAmenities.contains(amenity),
                         onClick = { onAmenityToggle(amenity) },
@@ -353,3 +348,4 @@ fun FilterBottomSheet(
         }
     }
 }
+

@@ -22,6 +22,8 @@ accompanistPermissions = "0.36.0"
 hiltNavigationCompose = "1.2.0"
 coreSplashscreen = "1.0.1"
 googleServices = "4.4.2"
+credentials = "1.2.2"
+googleid = "1.1.1"
 
 [libraries]
 # Core
@@ -58,9 +60,12 @@ firebase-storage-ktx = { group = "com.google.firebase", name = "firebase-storage
 firebase-messaging-ktx = { group = "com.google.firebase", name = "firebase-messaging-ktx" }
 firebase-analytics-ktx = { group = "com.google.firebase", name = "firebase-analytics-ktx" }
 
-# Google Play Services
+# Google Play Services & Identity
 play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
+androidx-credentials = { group = "androidx.credentials", name = "credentials", version.ref = "credentials" }
+androidx-credentials-play-services-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentials" }
+googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleid" }
 
 # Hilt
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }

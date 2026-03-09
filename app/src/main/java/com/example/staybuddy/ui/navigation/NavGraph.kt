@@ -17,6 +17,7 @@ import com.example.staybuddy.ui.screens.map.MapViewScreen
 import com.example.staybuddy.ui.screens.onboarding.OnboardingScreen
 import com.example.staybuddy.ui.screens.owner.AddListingScreen
 import com.example.staybuddy.ui.screens.owner.OwnerDashboardScreen
+import com.example.staybuddy.ui.screens.profile.EditProfileScreen
 import com.example.staybuddy.ui.screens.profile.ProfileScreen
 import com.example.staybuddy.ui.screens.roommate.AddRoommatePostScreen
 import com.example.staybuddy.ui.screens.roommate.RoommateListScreen
@@ -142,31 +143,44 @@ fun NavGraph(
 
         composable(Screen.RoommateList.route) {
             RoommateListScreen(
-                onNavigateToAddPost = { navController.navigate(Screen.AddRoommatePost.route) },
+                onNavigateToAddPost = { navController.navigate(Screen.AddRoommatePost.createRoute(null)) },
+                onNavigateToEditPost = { postId -> navController.navigate(Screen.AddRoommatePost.createRoute(postId)) },
                 onNavigateToChat = { chatId -> navController.navigate(Screen.Chat(chatId).route) }
             )
         }
 
-        composable(Screen.AddRoommatePost.route) {
+        composable(
+            route = Screen.AddRoommatePost.ROUTE,
+            arguments = listOf(navArgument("postId") {
+                type = NavType.StringType
+                defaultValue = "new"
+            })
+        ) {
             AddRoommatePostScreen(
-                onNavigateBack = { navController.popBackStack() }
+                onNavigateBack = { navController.popBackStack() },
+                onPostAdded = { navController.popBackStack() }
             )
         }
 
-        composable(Screen.AddListing.route) {
+        composable(
+            route = Screen.AddListing.ROUTE,
+            arguments = listOf(navArgument("listingId") {
+                type = NavType.StringType
+                defaultValue = "new"
+            })
+        ) {
             AddListingScreen(
                 onNavigateBack = { navController.popBackStack() },
-                onListingAdded = {
-                    navController.navigate(Screen.OwnerDashboard.route) {
-                        popUpTo(Screen.AddListing.route) { inclusive = true }
-                    }
-                }
+                onListingAdded = { navController.popBackStack() }
             )
         }
 
         composable(Screen.OwnerDashboard.route) {
             OwnerDashboardScreen(
-                onNavigateToAddListing = { navController.navigate(Screen.AddListing.route) },
+                onNavigateToAddListing = { navController.navigate(Screen.AddListing.createRoute(null)) },
+                onNavigateToEditListing = { listingId -> 
+                    navController.navigate(Screen.AddListing.createRoute(listingId))
+                },
                 onNavigateToDetail = { listingId ->
                     navController.navigate(Screen.ListingDetail(listingId).route)
                 }
@@ -197,11 +211,18 @@ fun NavGraph(
                 onNavigateToFavorites = { navController.navigate(Screen.Favorites.route) },
                 onNavigateToOwnerDashboard = { navController.navigate(Screen.OwnerDashboard.route) },
                 onNavigateToChatList = { navController.navigate(Screen.ChatList.route) },
+                onNavigateToEditProfile = { navController.navigate(Screen.EditProfile.route) },
                 onLogout = {
                     navController.navigate(Screen.Login.route) {
                         popUpTo(0) { inclusive = true }
                     }
                 }
+            )
+        }
+
+        composable(Screen.EditProfile.route) {
+            EditProfileScreen(
+                onNavigateBack = { navController.popBackStack() }
             )
         }
     }

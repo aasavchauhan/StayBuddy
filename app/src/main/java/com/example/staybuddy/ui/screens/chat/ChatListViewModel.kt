@@ -3,6 +3,7 @@ package com.example.staybuddy.ui.screens.chat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.staybuddy.data.model.ChatRoom
+import com.example.staybuddy.data.repository.AuthRepository
 import com.example.staybuddy.data.repository.ChatRepository
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,6 +16,7 @@ import javax.inject.Inject
 
 data class ChatListUiState(
     val chatRooms: List<ChatRoom> = emptyList(),
+    val userNames: Map<String, String> = emptyMap(),
     val currentUserId: String = "",
     val isLoading: Boolean = true,
     val error: String? = null
@@ -23,6 +25,7 @@ data class ChatListUiState(
 @HiltViewModel
 class ChatListViewModel @Inject constructor(
     private val chatRepository: ChatRepository,
+    private val authRepository: AuthRepository,
     private val auth: FirebaseAuth
 ) : ViewModel() {
 
@@ -59,7 +62,28 @@ class ChatListViewModel @Inject constructor(
                         chatRooms = rooms,
                         error = null
                     )
+                    fetchUserNames(rooms, userId)
                 }
+        }
+    }
+
+    private fun fetchUserNames(rooms: List<ChatRoom>, currentUserId: String) {
+        val otherUserIds = rooms.mapNotNull { room ->
+            room.participants.firstOrNull { it != currentUserId }
+        }.distinct()
+
+        viewModelScope.launch {
+            val namesMap = mutableMapOf<String, String>()
+            otherUserIds.forEach { id ->
+                authRepository.getUserFromFirestore(id).onSuccess { user ->
+                    if (user != null) {
+                        namesMap[id] = user.name
+                        _uiState.value = _uiState.value.copy(
+                            userNames = _uiState.value.userNames + namesMap
+                        )
+                    }
+                }
+            }
         }
     }
 }

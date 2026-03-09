@@ -17,14 +17,13 @@ class ListingRepository @Inject constructor(
 ) {
     fun getListings(): Flow<List<PgListing>> = callbackFlow {
         val listener = firestore.collection(Constants.PG_LISTINGS_COLLECTION)
-            .whereEqualTo("isActive", true)
-            .orderBy("createdAt", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
                     close(error)
                     return@addSnapshotListener
                 }
-                val listings = snapshot?.toObjects(PgListing::class.java) ?: emptyList()
+                val listings = snapshot?.toObjects(PgListing::class.java)
+                    ?.sortedByDescending { it.createdAt } ?: emptyList()
                 trySend(listings)
             }
         awaitClose { listener.remove() }
@@ -33,7 +32,6 @@ class ListingRepository @Inject constructor(
     fun getListingsByCity(city: String): Flow<List<PgListing>> = callbackFlow {
         val listener = firestore.collection(Constants.PG_LISTINGS_COLLECTION)
             .whereEqualTo("city", city)
-            .whereEqualTo("isActive", true)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
                     close(error)
@@ -60,13 +58,13 @@ class ListingRepository @Inject constructor(
     fun getListingsByOwner(ownerId: String): Flow<List<PgListing>> = callbackFlow {
         val listener = firestore.collection(Constants.PG_LISTINGS_COLLECTION)
             .whereEqualTo("ownerId", ownerId)
-            .orderBy("createdAt", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
                     close(error)
                     return@addSnapshotListener
                 }
-                val listings = snapshot?.toObjects(PgListing::class.java) ?: emptyList()
+                val listings = snapshot?.toObjects(PgListing::class.java)
+                    ?.sortedByDescending { it.createdAt } ?: emptyList()
                 trySend(listings)
             }
         awaitClose { listener.remove() }

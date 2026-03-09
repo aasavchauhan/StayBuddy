@@ -2,6 +2,7 @@ package com.example.staybuddy.data.repository
 
 import com.example.staybuddy.data.model.ChatRoom
 import com.example.staybuddy.data.model.Message
+import com.example.staybuddy.data.model.RoommatePost
 import com.example.staybuddy.utils.Constants
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -31,7 +32,35 @@ class ChatRepository @Inject constructor(
         awaitClose { listener.remove() }
     }
     
-    suspend fun getOrCreateChatRoom(user1Id: String, user2Id: String, listingId: String? = null): Result<String> {
+    suspend fun getChatRoom(chatId: String): Result<ChatRoom?> {
+        return try {
+            val doc = firestore.collection(Constants.CHATS_COLLECTION).document(chatId).get().await()
+            Result.success(doc.toObject(ChatRoom::class.java))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    fun getChatRoomFlow(chatId: String): Flow<ChatRoom?> = callbackFlow {
+        val listener = firestore.collection(Constants.CHATS_COLLECTION)
+            .document(chatId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+                val room = snapshot?.toObject(ChatRoom::class.java)
+                trySend(room)
+            }
+        awaitClose { listener.remove() }
+    }
+
+    suspend fun getOrCreateChatRoom(
+        user1Id: String, 
+        user2Id: String, 
+        listingId: String? = null,
+        roommatePostId: String? = null
+    ): Result<String> {
         return try {
             val existingRooms = firestore.collection(Constants.CHATS_COLLECTION)
                 .whereArrayContains("participants", user1Id)
@@ -39,7 +68,7 @@ class ChatRepository @Inject constructor(
                 .await()
                 .toObjects(ChatRoom::class.java)
                 
-            val room = existingRooms.find { it.participants.contains(user2Id) }
+            val room = existingRooms.find { it.participants.contains(user2Id) && it.roommatePostId == (roommatePostId ?: "") }
             
             if (room != null) {
                 Result.success(room.roomId)
@@ -49,6 +78,7 @@ class ChatRepository @Inject constructor(
                     roomId = docRef.id,
                     participants = listOf(user1Id, user2Id),
                     listingId = listingId ?: "",
+                    roommatePostId = roommatePostId ?: "",
                     lastMessage = "",
                     lastMessageTime = System.currentTimeMillis()
                 )
@@ -74,6 +104,43 @@ class ChatRepository @Inject constructor(
                 trySend(messages)
             }
         awaitClose { listener.remove() }
+    }
+
+    suspend fun confirmMatch(chatId: String, userId: String): Result<Unit> {
+        return try {
+            firestore.runTransaction { transaction ->
+                val roomRef = firestore.collection(Constants.CHATS_COLLECTION).document(chatId)
+                val room = transaction.get(roomRef).toObject(ChatRoom::class.java)
+                    ?: throw Exception("Chat not found")
+                
+                if (!room.confirmedBy.contains(userId)) {
+                    val updatedConfirmedBy = room.confirmedBy + userId
+                    val isConfirmed = updatedConfirmedBy.size >= 2
+                    
+                    transaction.update(roomRef, "confirmedBy", updatedConfirmedBy)
+                    if (isConfirmed) {
+                        transaction.update(roomRef, "isMatchConfirmed", true)
+                        
+                        // If it's a roommate match, decrement beds
+                        if (room.roommatePostId.isNotEmpty()) {
+                            val postRef = firestore.collection(Constants.ROOMMATE_POSTS_COLLECTION)
+                                .document(room.roommatePostId)
+                            val post = transaction.get(postRef).toObject(RoommatePost::class.java)
+                            if (post != null && post.availableBeds > 0) {
+                                val newAvailable = post.availableBeds - 1
+                                transaction.update(postRef, "availableBeds", newAvailable)
+                                if (newAvailable == 0) {
+                                    transaction.update(postRef, "isActive", false)
+                                }
+                            }
+                        }
+                    }
+                }
+            }.await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     suspend fun sendMessage(roomId: String, senderId: String, text: String): Result<Unit> {

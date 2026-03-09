@@ -13,7 +13,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,10 +34,15 @@ fun ProfileScreen(
     onNavigateToFavorites: () -> Unit,
     onNavigateToOwnerDashboard: () -> Unit,
     onNavigateToChatList: () -> Unit,
+    onNavigateToEditProfile: () -> Unit,
     onLogout: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        viewModel.refreshUserProfile()
+    }
 
     Scaffold(
         topBar = {
@@ -53,126 +58,128 @@ fun ProfileScreen(
             Box(modifier = Modifier.fillMaxSize().padding(paddingValues), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
-        } else if (uiState.error != null) {
-            Box(modifier = Modifier.fillMaxSize().padding(paddingValues), contentAlignment = Alignment.Center) {
-                Text(text = uiState.error!!, color = MaterialTheme.colorScheme.error)
-            }
         } else {
-            val user = uiState.user
-            if (user != null) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                        .verticalScroll(rememberScrollState())
-                        .padding(bottom = 24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Spacer(modifier = Modifier.height(24.dp))
-                    
-                    // Profile Image
-                    Box(
-                        modifier = Modifier
-                            .size(120.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primaryContainer),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (user.profileImage.isNotEmpty()) {
-                            AsyncImage(
-                                model = user.profileImage,
-                                contentDescription = "Profile Image",
-                                modifier = Modifier.fillMaxSize(),
-                                contentScale = ContentScale.Crop
-                            )
-                        } else {
-                            Icon(
-                                imageVector = Icons.Default.Person,
-                                contentDescription = null,
-                                modifier = Modifier.size(64.dp),
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
-                        }
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .verticalScroll(rememberScrollState())
+                    .padding(bottom = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                if (uiState.error != null) {
+                    Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
+                        Text(text = uiState.error!!, color = MaterialTheme.colorScheme.error)
                     }
-                    
-                    Spacer(modifier = Modifier.height(16.dp))
-                    
-                    Text(
-                        text = user.name,
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold
-                    )
-                    
-                    Text(
-                        text = user.email,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    Surface(
-                        color = MaterialTheme.colorScheme.secondaryContainer,
-                        shape = RoundedCornerShape(16.dp)
-                    ) {
+                } else {
+                    val user = uiState.user
+                    if (user != null) {
+                        Spacer(modifier = Modifier.height(24.dp))
+                        
+                        // Profile Image
+                        Box(
+                            modifier = Modifier
+                                .size(120.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.primaryContainer),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (user.profileImage.isNotEmpty()) {
+                                AsyncImage(
+                                    model = user.profileImage,
+                                    contentDescription = "Profile Image",
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Default.Person,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(64.dp),
+                                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                            }
+                        }
+                        
+                        Spacer(modifier = Modifier.height(16.dp))
+                        
                         Text(
-                            text = user.role.uppercase(),
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            text = user.name,
+                            style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold
                         )
-                    }
-                    
-                    Spacer(modifier = Modifier.height(32.dp))
-                    
-                    // Profile Options
-                    ProfileOptionItem(
-                        title = "My Favorites",
-                        icon = Icons.Default.Favorite,
-                        onClick = onNavigateToFavorites
-                    )
-                    
-                    ProfileOptionItem(
-                        title = "Messages",
-                        icon = Icons.AutoMirrored.Filled.Chat,
-                        onClick = onNavigateToChatList
-                    )
-                    
-                    if (user.role == Constants.ROLE_OWNER) {
+                        
+                        Text(
+                            text = user.email,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        
+                        Spacer(modifier = Modifier.height(8.dp))
+                        
+                        Surface(
+                            color = MaterialTheme.colorScheme.secondaryContainer,
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Text(
+                                text = user.role.uppercase(),
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        
+                        Spacer(modifier = Modifier.height(32.dp))
+                        
+                        // Profile Options
                         ProfileOptionItem(
-                            title = "Owner Dashboard",
-                            icon = Icons.Default.Dashboard,
-                            onClick = onNavigateToOwnerDashboard
+                            title = "My Favorites",
+                            icon = Icons.Default.Favorite,
+                            onClick = onNavigateToFavorites
+                        )
+                        
+                        ProfileOptionItem(
+                            title = "Messages",
+                            icon = Icons.AutoMirrored.Filled.Chat,
+                            onClick = onNavigateToChatList
+                        )
+                        
+                        if (user.role == Constants.ROLE_OWNER) {
+                            ProfileOptionItem(
+                                title = "Owner Dashboard",
+                                icon = Icons.Default.Dashboard,
+                                onClick = onNavigateToOwnerDashboard
+                            )
+                        }
+                        
+                        ProfileOptionItem(
+                            title = "Account Settings",
+                            icon = Icons.Default.Settings,
+                            onClick = onNavigateToEditProfile
                         )
                     }
-                    
-                    ProfileOptionItem(
-                        title = "Account Settings",
-                        icon = Icons.Default.Settings,
-                        onClick = { /* TODO */ }
-                    )
-                    
-                    Spacer(modifier = Modifier.height(16.dp))
-                    
-                    HorizontalDivider(
-                        modifier = Modifier.padding(horizontal = 24.dp),
-                        thickness = 1.dp,
-                        color = MaterialTheme.colorScheme.outlineVariant
-                    )
-                    
-                    Spacer(modifier = Modifier.height(16.dp))
-                    
-                    ProfileOptionItem(
-                        title = "Log Out",
-                        icon = Icons.Default.Logout,
-                        onClick = {
-                            viewModel.logout()
-                            onLogout()
-                        },
-                        color = MaterialTheme.colorScheme.error
-                    )
                 }
+                
+                Spacer(modifier = Modifier.height(32.dp))
+                
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 24.dp),
+                    thickness = 1.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                ProfileOptionItem(
+                    title = "Log Out",
+                    icon = Icons.Default.Logout,
+                    onClick = {
+                        viewModel.logout()
+                        onLogout()
+                    },
+                    color = MaterialTheme.colorScheme.error
+                )
             }
         }
     }

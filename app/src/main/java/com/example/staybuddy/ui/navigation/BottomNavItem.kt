@@ -32,7 +32,7 @@ object BottomNavItems {
     val ownerItems = listOf(
         BottomNavItem("Home", Screen.Home.route, Icons.Filled.Home, Icons.Outlined.Home),
         BottomNavItem("Search", Screen.Search.route, Icons.Filled.Search, Icons.Outlined.Search),
-        BottomNavItem("Add PG", Screen.AddListing.route, Icons.Filled.Add, Icons.Outlined.Add),
+        BottomNavItem("Add PG", Screen.AddListing.ROUTE, Icons.Filled.Add, Icons.Outlined.Add),
         BottomNavItem("Chats", Screen.ChatList.route, Icons.Filled.Chat, Icons.Outlined.Chat),
         BottomNavItem("Profile", Screen.Profile.route, Icons.Filled.Person, Icons.Outlined.Person)
     )

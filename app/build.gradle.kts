@@ -82,8 +82,11 @@ dependencies {
     implementation(libs.firebase.messaging.ktx)
     implementation(libs.firebase.analytics.ktx)
 
-    // Google Sign-In
+    // Google Sign-In & Credential Manager
     implementation(libs.play.services.auth)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
 
     // Maps (osmdroid — free OpenStreetMap, no API key needed)
     implementation(libs.osmdroid.android)

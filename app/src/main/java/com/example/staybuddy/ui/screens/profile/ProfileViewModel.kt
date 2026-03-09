@@ -30,6 +30,10 @@ class ProfileViewModel @Inject constructor(
     }
 
     private fun loadUserProfile() {
+        refreshUserProfile()
+    }
+
+    fun refreshUserProfile() {
         val currentUserId = authRepository.currentUser?.uid
         if (currentUserId == null) {
             _uiState.value = _uiState.value.copy(
@@ -40,6 +44,7 @@ class ProfileViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             val result = authRepository.getUserFromFirestore(currentUserId)
             result.onSuccess { user ->
                 _uiState.value = _uiState.value.copy(

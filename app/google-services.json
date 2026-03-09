@@ -12,7 +12,20 @@
           "package_name": "com.example.staybuddy"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "611800697150-13vplqmv3f2sh232dor35liciglssv15.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.staybuddy",
+            "certificate_hash": "e74d039c6007cd543322a341c5e2d0ed05a7df63"
+          }
+        },
+        {
+          "client_id": "611800697150-lcqo34l8r50v1brm6dsnf7bkrjb5pslr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyB2UOe0_vyxWo32GWxcRZBBW1aPPUelSt4"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "611800697150-lcqo34l8r50v1brm6dsnf7bkrjb5pslr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

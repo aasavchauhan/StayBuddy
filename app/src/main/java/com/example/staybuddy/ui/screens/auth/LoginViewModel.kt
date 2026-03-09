@@ -8,6 +8,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import android.content.Context
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialException
+import com.example.staybuddy.utils.Constants
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 
 data class LoginUiState(
     val email: String = "",
@@ -57,21 +65,68 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun signInWithGoogle(idToken: String) {
+    fun signInWithGoogle(context: Context) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
-            val result = authRepository.signInWithGoogle(idToken)
-            result.fold(
-                onSuccess = {
-                    _uiState.value = _uiState.value.copy(isLoading = false, isLoginSuccess = true)
-                },
-                onFailure = { e ->
+            try {
+                val credentialManager = CredentialManager.create(context)
+                val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
+                    .setFilterByAuthorizedAccounts(false)
+                    .setServerClientId(Constants.WEB_CLIENT_ID)
+                    .setAutoSelectEnabled(true)
+                    .build()
+
+                val request: GetCredentialRequest = GetCredentialRequest.Builder()
+                    .addCredentialOption(googleIdOption)
+                    .build()
+
+                val result = credentialManager.getCredential(context, request)
+                val credential = result.credential
+                
+                if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                    val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                    val idToken = googleIdTokenCredential.idToken
+                    
+                    val authResult = authRepository.signInWithGoogle(idToken)
+                    authResult.fold(
+                        onSuccess = { firebaseUser ->
+                            // Check if user exists in Firestore. If not, create a default profile.
+                            val profileResult = authRepository.getUserFromFirestore(firebaseUser.uid)
+                            if (profileResult.isSuccess && profileResult.getOrNull() == null) {
+                                val newUser = com.example.staybuddy.data.model.User(
+                                    userId = firebaseUser.uid,
+                                    name = firebaseUser.displayName ?: "New User",
+                                    email = firebaseUser.email ?: "",
+                                    role = "student"
+                                )
+                                authRepository.saveUserToFirestore(newUser)
+                            }
+                            _uiState.value = _uiState.value.copy(isLoading = false, isLoginSuccess = true)
+                        },
+                        onFailure = { e ->
+                            _uiState.value = _uiState.value.copy(
+                                isLoading = false,
+                                errorMessage = e.message ?: "Google sign-in failed"
+                            )
+                        }
+                    )
+                } else {
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
-                        errorMessage = e.message ?: "Google sign-in failed"
+                        errorMessage = "Unexpected credential type"
                     )
                 }
-            )
+            } catch (e: GetCredentialException) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    errorMessage = e.message ?: "Google sign-in canceled or failed"
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    errorMessage = e.message ?: "An error occurred"
+                )
+            }
         }
     }
 

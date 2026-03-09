@@ -1,23 +1,29 @@
 package com.example.staybuddy.ui.screens.owner
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.staybuddy.ui.screens.roommate.PreferenceCheckbox
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.border
+import androidx.compose.foundation.shape.RoundedCornerShape
+import org.osmdroid.util.GeoPoint
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,7 +32,7 @@ fun AddListingScreen(
     onListingAdded: () -> Unit,
     viewModel: AddListingViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scrollState = rememberScrollState()
 
     LaunchedEffect(uiState.isSuccess) {
@@ -52,7 +58,7 @@ fun AddListingScreen(
         topBar = {
             TopAppBar(
                 title = { 
-                    Text("Add Property (Step ${uiState.currentStep} of 3)") 
+                    Text("${if (uiState.isEditing) "Edit" else "Add"} Property (Step ${uiState.currentStep} of 3)") 
                 },
                 navigationIcon = {
                     IconButton(onClick = { 
@@ -88,7 +94,7 @@ fun AddListingScreen(
                     if (uiState.isLoading) {
                         CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onPrimary)
                     } else {
-                        Text(if (uiState.currentStep < 3) "Next" else "Publish")
+                        Text(if (uiState.currentStep < 3) "Next" else if (uiState.isEditing) "Update" else "Publish")
                     }
                 }
             }
@@ -144,7 +150,7 @@ fun Step1BasicInfo(uiState: AddListingUiState, viewModel: AddListingViewModel) {
     OutlinedTextField(
         value = uiState.city,
         onValueChange = { viewModel.updateField("city", it) },
-        label = { Text("City (e.g. Bangalore)") },
+        label = { Text("City (e.g. Vadodara)") },
         modifier = Modifier.fillMaxWidth(),
         singleLine = true
     )
@@ -164,6 +170,46 @@ fun Step1BasicInfo(uiState: AddListingUiState, viewModel: AddListingViewModel) {
         modifier = Modifier.fillMaxWidth(),
         minLines = 3
     )
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    Text("Pin Location on Map", style = MaterialTheme.typography.titleMedium)
+    Text(
+        text = "Tap on the map to mark the exact property location. This is required.",
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+    
+    Spacer(modifier = Modifier.height(8.dp))
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(250.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .border(
+                1.dp, 
+                MaterialTheme.colorScheme.outlineVariant, 
+                RoundedCornerShape(12.dp)
+            )
+    ) {
+        com.example.staybuddy.ui.components.OsmMapView(
+            isPickerMode = true,
+            currentLocation = if (uiState.latitude != 0.0) GeoPoint(uiState.latitude, uiState.longitude) else null,
+            onLocationSelected = { geoPoint ->
+                viewModel.updateLocation(geoPoint.latitude, geoPoint.longitude)
+            }
+        )
+    }
+
+    if (uiState.latitude != 0.0) {
+        Text(
+            text = "Pinned: ${"%.4f".format(uiState.latitude)}, ${"%.4f".format(uiState.longitude)}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold
+        )
+    }
 }
 
 @Composable
@@ -207,20 +253,34 @@ fun Step3AmenitiesPhotos(uiState: AddListingUiState, viewModel: AddListingViewMo
     
     val commonAmenities = listOf("WiFi", "AC", "Power Backup", "Food Included", "Laundry", "Cleaning", "Attached Bathroom", "TV")
     
-    FlowRow(
+    // Use simple Rows instead of FlowRow to rule out experimental API crashes
+    // Simplified layout to avoid any potential crashes
+    Column(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        commonAmenities.forEach { amenity ->
-            FilterChip(
-                selected = uiState.amenities.contains(amenity),
-                onClick = { viewModel.toggleAmenity(amenity) },
-                label = { Text(amenity) },
-                leadingIcon = if (uiState.amenities.contains(amenity)) {
-                    { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp)) }
-                } else null
-            )
+        val rows = commonAmenities.chunked(2) // 2 columns for more space
+        rows.forEach { rowAmenities ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                rowAmenities.forEach { amenity ->
+                    val isSelected = uiState.amenities.contains(amenity)
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = { viewModel.toggleAmenity(amenity) },
+                        label = { Text(amenity) },
+                        modifier = Modifier.weight(1f),
+                        leadingIcon = if (isSelected) {
+                            { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp)) }
+                        } else null
+                    )
+                }
+                if (rowAmenities.size < 2) {
+                    Spacer(modifier = Modifier.weight(1f))
+                }
+            }
         }
     }
     
@@ -240,4 +300,45 @@ fun Step3AmenitiesPhotos(uiState: AddListingUiState, viewModel: AddListingViewMo
         modifier = Modifier.fillMaxWidth(),
         minLines = 3
     )
+
+    if (uiState.isEditing) {
+        Spacer(modifier = Modifier.height(24.dp))
+        
+        var showDeleteDialog by remember { mutableStateOf(false) }
+        
+        OutlinedButton(
+            onClick = { showDeleteDialog = true },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.error)
+        ) {
+            Icon(Icons.Default.Delete, contentDescription = null)
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Delete Listing Permanently")
+        }
+        
+        if (showDeleteDialog) {
+            AlertDialog(
+                onDismissRequest = { showDeleteDialog = false },
+                title = { Text("Delete Listing?") },
+                text = { Text("Are you sure you want to delete this property? This action cannot be undone.") },
+                confirmButton = {
+                    TextButton(
+                        onClick = { 
+                            showDeleteDialog = false
+                            viewModel.deleteListing() 
+                        },
+                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                    ) {
+                        Text("Delete")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDeleteDialog = false }) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
+    }
 }

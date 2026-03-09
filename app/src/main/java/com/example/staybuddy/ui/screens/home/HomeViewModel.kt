@@ -3,36 +3,66 @@ package com.example.staybuddy.ui.screens.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.staybuddy.data.model.PgListing
+import com.example.staybuddy.data.manager.PreferenceManager
 import com.example.staybuddy.data.repository.ListingRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.math.*
 
 data class HomeUiState(
     val recommendedListings: List<PgListing> = emptyList(),
     val nearbyListings: List<PgListing> = emptyList(),
+    val listingsWithDistance: List<Pair<PgListing, Double?>> = emptyList(),
+    val selectedCity: String = "Vadodara",
+    val selectedUniversity: String? = null,
+    val userLocation: Pair<Double, Double>? = null,
     val isLoading: Boolean = false,
     val error: String? = null
 )
 
+val CITIES = listOf("Vadodara", "Ahmedabad", "Surat", "Rajkot", "Gandhinagar", "Mumbai", "Pune", "Bangalore")
+val UNIVERSITIES = listOf(
+    "MS University", "Parul University", "Navrachana University", 
+    "IIT Bombay", "Pune University", "DA-IICT", "Nirma University"
+)
+
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val listingRepository: ListingRepository
+    private val listingRepository: ListingRepository,
+    private val preferenceManager: PreferenceManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     init {
+        observePreferences()
         loadData()
     }
 
+    private fun observePreferences() {
+        viewModelScope.launch {
+            combine(
+                preferenceManager.selectedCity,
+                preferenceManager.selectedUniversity,
+                preferenceManager.lastLocation
+            ) { city, university, location ->
+                Triple(city, university, location)
+            }.collect { (city, university, location) ->
+                _uiState.value = _uiState.value.copy(
+                    selectedCity = city ?: "Vadodara",
+                    selectedUniversity = university
+                )
+                // Refresh data if location/city changed significantly if needed
+                loadData()
+            }
+        }
+    }
+
     fun loadData() {
+        val currentState = _uiState.value
         viewModelScope.launch {
             listingRepository.getListings()
                 .onStart { _uiState.value = _uiState.value.copy(isLoading = true, error = null) }
@@ -43,18 +73,57 @@ class HomeViewModel @Inject constructor(
                     )
                 }
                 .collect { listings ->
-                    // For now, split the listings between recommended and nearby
-                    // In a real app, nearby would be based on geolocation
-                    val recommended = listings.take(3)
-                    val nearby = if (listings.size > 3) listings.drop(3) else listings
+                    val userLocation = currentState.userLocation ?: currentState.selectedUniversity?.let { 
+                        // Mock University coordinates
+                        when(it) {
+                            "MS University" -> Pair(22.3106, 73.1812)
+                            "Parul University" -> Pair(22.2894, 73.3643)
+                            else -> Pair(22.3072, 73.1812)
+                        }
+                    }
+
+                    val listingsWithDist = listings.map { listing ->
+                        val distance = if (listing.latitude != 0.0 && listing.longitude != 0.0 && userLocation != null) {
+                            calculateDistance(
+                                listing.latitude, listing.longitude,
+                                userLocation.first, userLocation.second
+                            )
+                        } else null
+                        listing to distance
+                    }.sortedBy { it.second ?: Double.MAX_VALUE }
 
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
-                        recommendedListings = recommended,
-                        nearbyListings = nearby
+                        recommendedListings = listings.take(3),
+                        nearbyListings = listings.filter { it.city.contains(currentState.selectedCity, ignoreCase = true) },
+                        listingsWithDistance = listingsWithDist,
+                        userLocation = userLocation
                     )
                 }
         }
+    }
+
+    fun updateCity(city: String) {
+        viewModelScope.launch {
+            preferenceManager.setSelectedCity(city)
+        }
+    }
+
+    fun updateUniversity(uni: String) {
+        viewModelScope.launch {
+            preferenceManager.setSelectedUniversity(uni)
+        }
+    }
+
+    private fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+        val r = 6371 // Radius of the earth in km
+        val dLat = Math.toRadians(lat2 - lat1)
+        val dLon = Math.toRadians(lon2 - lon1)
+        val a = sin(dLat / 2) * sin(dLat / 2) +
+                cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) *
+                sin(dLon / 2) * sin(dLon / 2)
+        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+        return r * c
     }
     
     fun toggleFavorite(listingId: String) {

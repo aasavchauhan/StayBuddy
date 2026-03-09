@@ -1,5 +1,7 @@
 package com.example.staybuddy.data.model
 
+import com.google.firebase.firestore.PropertyName
+
 data class PgListing(
     val listingId: String = "",
     val ownerId: String = "",
@@ -16,7 +18,11 @@ data class PgListing(
     val amenities: List<String> = emptyList(),
     val images: List<String> = emptyList(),
     val availableBeds: Int = 0,
-    val isActive: Boolean = true,
+    @get:PropertyName("isActive")
+    @set:PropertyName("isActive")
+    var isActive: Boolean = true,
     val rating: Float = 0f,
     val createdAt: Long = System.currentTimeMillis()
-)
+) {
+    constructor() : this("")
+}

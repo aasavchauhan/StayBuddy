@@ -7,9 +7,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Message
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,7 +29,7 @@ fun ChatListScreen(
     onNavigateToChat: (String) -> Unit,
     viewModel: ChatListViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
@@ -50,11 +51,38 @@ fun ChatListScreen(
             }
         } else if (uiState.chatRooms.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize().padding(paddingValues), contentAlignment = Alignment.Center) {
-                Text(
-                    text = "No messages yet.",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier.padding(32.dp)
+                ) {
+                    Surface(
+                        modifier = Modifier.size(120.dp),
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Message,
+                            contentDescription = null,
+                            modifier = Modifier.padding(30.dp).fillMaxSize(),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Text(
+                        text = "No messages yet",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Start a conversation with property owners or potential roommates to find your perfect stay!",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
+                }
             }
         } else {
             LazyColumn(
@@ -65,9 +93,12 @@ fun ChatListScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(uiState.chatRooms, key = { it.roomId }) { room ->
+                    val otherUserId = room.participants.firstOrNull { it != uiState.currentUserId }
+                    val otherUserName = uiState.userNames[otherUserId] ?: "User ${otherUserId?.take(5) ?: "..."}"
+                    
                     ChatRoomItem(
                         room = room,
-                        currentUserId = uiState.currentUserId,
+                        otherUserName = otherUserName,
                         onClick = { onNavigateToChat(room.roomId) }
                     )
                 }
@@ -79,13 +110,9 @@ fun ChatListScreen(
 @Composable
 fun ChatRoomItem(
     room: ChatRoom,
-    currentUserId: String,
+    otherUserName: String,
     onClick: () -> Unit
 ) {
-    // In a real app we'd fetch the user's name. Here we use a generic string based on the ID.
-    val otherUserId = room.participants.firstOrNull { it != currentUserId } ?: "Unknown"
-    val displayTitle = "User ${otherUserId.take(5)}..."
-    
     val timeString = SimpleDateFormat("MMM dd, HH:mm", Locale.getDefault()).format(Date(room.lastMessageTime))
 
     Card(
@@ -126,7 +153,7 @@ fun ChatRoomItem(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = displayTitle,
+                        text = otherUserName,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,

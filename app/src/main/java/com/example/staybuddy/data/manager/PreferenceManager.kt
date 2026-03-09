@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -39,6 +40,38 @@ class PreferenceManager @Inject constructor(
     suspend fun setUserRole(role: String) {
         context.dataStore.edit { preferences ->
             preferences[stringPreferencesKey(Constants.KEY_USER_ROLE)] = role
+        }
+    }
+
+    val selectedCity: Flow<String?> = context.dataStore.data
+        .map { preferences -> preferences[stringPreferencesKey(Constants.KEY_SELECTED_CITY)] }
+
+    suspend fun setSelectedCity(city: String) {
+        context.dataStore.edit { preferences ->
+            preferences[stringPreferencesKey(Constants.KEY_SELECTED_CITY)] = city
+        }
+    }
+
+    val selectedUniversity: Flow<String?> = context.dataStore.data
+        .map { preferences -> preferences[stringPreferencesKey(Constants.KEY_SELECTED_UNIVERSITY)] }
+
+    suspend fun setSelectedUniversity(university: String) {
+        context.dataStore.edit { preferences ->
+            preferences[stringPreferencesKey(Constants.KEY_SELECTED_UNIVERSITY)] = university
+        }
+    }
+
+    val lastLocation: Flow<Pair<Double, Double>?> = context.dataStore.data
+        .map { preferences ->
+            val lat = preferences[doublePreferencesKey(Constants.KEY_LATITUDE)]
+            val lon = preferences[doublePreferencesKey(Constants.KEY_LONGITUDE)]
+            if (lat != null && lon != null) Pair(lat, lon) else null
+        }
+
+    suspend fun setLocation(lat: Double, lon: Double) {
+        context.dataStore.edit { preferences ->
+            preferences[doublePreferencesKey(Constants.KEY_LATITUDE)] = lat
+            preferences[doublePreferencesKey(Constants.KEY_LONGITUDE)] = lon
         }
     }
 
