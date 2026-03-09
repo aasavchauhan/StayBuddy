@@ -1,0 +1,25 @@
+﻿.\gradlew.bat : 
+At line:1 char:1
++ .\gradlew.bat assembleDebug 2>&1 | Out-File -FilePath C:\Users\Aasav\ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+A problem occurred configuring project ':app'.
+> Using kotlin.sourceSets DSL to add Kotlin sources is not allowed with built-in Kotlin.
+  Kotlin source set 'debug' contains: [C:\Users\Aasav\StayBuddy\app\build\generated\ksp\debug\kotlin, 
+C:\Users\Aasav\StayBuddy\app\build\generated\ksp\debug\java]
+  Solution: Use android.sourceSets DSL instead.
+  For more information, see https://developer.android.com/r/tools/built-in-kotlin
+  To suppress this error, set android.disallowKotlinSourceSets=false in gradle.properties.
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 16s

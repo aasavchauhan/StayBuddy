@@ -1,0 +1,46 @@
+﻿
+> Configure project :app
+WARNING: The option setting 'android.disallowKotlinSourceSets=false' is experimental.
+The current default is 'true'.
+
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:generateDebugBuildConfig UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:processDebugGoogleServices UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:processDebugNavigationResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:generateDebugRFile UP-TO-DATE
+> Task :app:kspDebugKotlin UP-TO-DATE
+
+> Task :app:compileDebugKotlin FAILED
+.\gradlew.bat : e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/listing/Listing
+DetailScreen.kt:15:7 Syntax error: Expecting qualified name.
+At line:1 char:1
++ .\gradlew.bat compileDebugKotlin 2>&1 | Out-File -FilePath C:\Users\A ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (e: file:///C:/U...qualified name.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/listing/ListingDetailScreen.kt:
+60:80 Unresolved reference 'Favorite'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/listing/ListingDetailScreen.kt:
+291:42 Unresolved reference 'BorderStroke'.
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileDebugKotlin'.
+> A failure occurred while executing 
+org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 2s
+9 actionable tasks: 1 executed, 8 up-to-date
