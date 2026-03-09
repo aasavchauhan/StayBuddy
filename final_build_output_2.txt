@@ -1,0 +1,55 @@
+﻿
+> Configure project :app
+WARNING: The option setting 'android.disallowKotlinSourceSets=false' is experimental.
+The current default is 'true'.
+
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:generateDebugBuildConfig UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:processDebugGoogleServices UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:processDebugNavigationResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:generateDebugRFile UP-TO-DATE
+> Task :app:kspDebugKotlin
+
+> Task :app:compileDebugKotlin FAILED
+.\gradlew.bat : e: 
+file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/data/repository/ChatRepository.kt:51:33 
+Argument type mismatch: actual type is 'String?', but 'String' was expected.
+At line:1 char:1
++ .\gradlew.bat compileDebugKotlin 2>&1 | Out-File -FilePath C:\Users\A ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (e: file:///C:/U...' was expected.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:9:33 
+Conflicting import: imported name 'Composable' is ambiguous.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:10:28 
+Conflicting import: imported name 'Alignment' is ambiguous.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:11:28 
+Conflicting import: imported name 'Modifier' is ambiguous.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:26:33 
+Conflicting import: imported name 'Composable' is ambiguous.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:29:28 
+Conflicting import: imported name 'Alignment' is ambiguous.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:30:28 
+Conflicting import: imported name 'Modifier' is ambiguous.
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileDebugKotlin'.
+> A failure occurred while executing 
+org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 35s
+9 actionable tasks: 2 executed, 7 up-to-date

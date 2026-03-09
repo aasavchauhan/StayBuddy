@@ -38,7 +38,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
-private val Context.dataStore by preferencesDataStore(name = Constants.DATASTORE_NAME)
+// context.dataStore removed, using PreferenceManager via ViewModel
 
 @Composable
 fun SplashScreen(
@@ -65,10 +65,7 @@ fun SplashScreen(
     LaunchedEffect(Unit) {
         startAnimation = true
         delay(500)
-        val isFirstLaunch = context.dataStore.data.map { prefs ->
-            !(prefs[booleanPreferencesKey(Constants.KEY_ONBOARDING_COMPLETED)] ?: false)
-        }.first()
-        viewModel.checkAuthState(isFirstLaunch)
+        viewModel.checkAuthState()
     }
 
     LaunchedEffect(destination) {

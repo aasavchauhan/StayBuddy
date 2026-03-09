@@ -1,0 +1,120 @@
+﻿
+> Configure project :app
+WARNING: The option setting 'android.disallowKotlinSourceSets=false' is experimental.
+The current default is 'true'.
+
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:generateDebugBuildConfig UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:processDebugGoogleServices UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:processDebugNavigationResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:generateDebugRFile UP-TO-DATE
+> Task :app:kspDebugKotlin
+
+> Task :app:compileDebugKotlin
+.\gradlew.bat : e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/MainActivity.kt:19:2 
+Unresolved reference 'AndroidEntryPoint'.
+At line:1 char:1
++ .\gradlew.bat compileDebugKotlin 2>&1 | Out-File -FilePath C:\Users\A ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (e: file:///C:/U...oidEntryPoint'.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/MainActivity.kt:25:13 Unresolved 
+reference 'StayBuddyTheme'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/MainActivity.kt:26:17 @Composable 
+invocations can only happen from the context of a @Composable function
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/MainActivity.kt:34:25 Unresolved 
+reference 'rememberNavController'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/MainActivity.kt:36:43 Unresolved 
+reference 'destination'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/MainActivity.kt:37:17 Type 
+'State<MainUiState>' has no method 'getValue(Nothing?, KProperty0<*>)', so it cannot serve as a delegate.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/MainActivity.kt:40:27 Cannot infer type 
+for this parameter. Specify it explicitly.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/MainActivity.kt:41:9 Unresolved reference 
+'Screen'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/MainActivity.kt:42:9 Unresolved reference 
+'Screen'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/MainActivity.kt:43:9 Unresolved reference 
+'Screen'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/MainActivity.kt:44:9 Unresolved reference 
+'Screen'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/MainActivity.kt:45:9 Unresolved reference 
+'Screen'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/MainActivity.kt:46:9 Unresolved reference 
+'Screen'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/MainActivity.kt:52:9 Unresolved reference 
+'BottomNavItems'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/MainActivity.kt:54:9 Unresolved reference 
+'BottomNavItems'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/MainActivity.kt:58:20 Unresolved 
+reference 'Modifier'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/MainActivity.kt:62:46 Cannot infer type 
+for this parameter. Specify it explicitly.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/MainActivity.kt:63:63 Unresolved 
+reference 'route'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/MainActivity.kt:64:25 @Composable 
+invocations can only happen from the context of a @Composable function
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/MainActivity.kt:67:58 Unresolved 
+reference 'route'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/MainActivity.kt:68:65 Unresolved 
+reference 'route'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/MainActivity.kt:69:41 Unresolved 
+reference 'popUpTo'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/MainActivity.kt:69:49 Unresolved 
+reference 'Screen'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/MainActivity.kt:69:70 Unresolved 
+reference 'saveState'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/MainActivity.kt:70:41 Unresolved 
+reference 'launchSingleTop'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/MainActivity.kt:71:41 Unresolved 
+reference 'restoreState'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/MainActivity.kt:77:72 Unresolved 
+reference 'selectedIcon'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/MainActivity.kt:77:95 Unresolved 
+reference 'unselectedIcon'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/MainActivity.kt:78:63 Unresolved 
+reference 'label'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/MainActivity.kt:81:49 Unresolved 
+reference 'label'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/MainActivity.kt:88:9 Unresolved reference 
+'NavGraph'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/MainActivity.kt:90:24 Unresolved 
+reference 'Modifier'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/data/repository/ChatRepository.kt:51:33 
+Argument type mismatch: actual type is 'String?', but 'String' was expected.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:9:33 
+Conflicting import: imported name 'Composable' is ambiguous.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:10:28 
+Conflicting import: imported name 'Alignment' is ambiguous.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:11:28 
+Conflicting import: imported name 'Modifier' is ambiguous.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:26:33 
+Conflicting import: imported name 'Composable' is ambiguous.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:29:28 
+Conflicting import: imported name 'Alignment' is ambiguous.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:30:28 
+Conflicting import: imported name 'Modifier' is ambiguous.
+
+> Task :app:compileDebugKotlin FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileDebugKotlin'.
+> A failure occurred while executing 
+org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 20s
+9 actionable tasks: 2 executed, 7 up-to-date

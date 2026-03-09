@@ -1,0 +1,33 @@
+﻿
+> Configure project :app
+WARNING: The option setting 'android.disallowKotlinSourceSets=false' is experimental.
+The current default is 'true'.
+
+> Task :app:signingReport
+Variant: debug
+Config: debug
+Store: C:\Users\Aasav\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 90:CA:E6:0C:B2:44:40:86:A0:42:EA:D0:EF:3F:F3:1A
+SHA1: E7:4D:03:9C:60:07:CD:54:33:22:A3:41:C5:E2:D0:ED:05:A7:DF:63
+SHA-256: 8F:21:42:84:ED:D2:E7:AB:4E:34:5A:55:D3:44:4E:94:6B:5E:4E:22:C4:3E:D6:B5:55:D8:D5:5A:C2:51:8A:32
+Valid until: Friday, 31 December, 2055
+----------
+Variant: release
+Config: null
+Store: null
+Alias: null
+----------
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\Aasav\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 90:CA:E6:0C:B2:44:40:86:A0:42:EA:D0:EF:3F:F3:1A
+SHA1: E7:4D:03:9C:60:07:CD:54:33:22:A3:41:C5:E2:D0:ED:05:A7:DF:63
+SHA-256: 8F:21:42:84:ED:D2:E7:AB:4E:34:5A:55:D3:44:4E:94:6B:5E:4E:22:C4:3E:D6:B5:55:D8:D5:5A:C2:51:8A:32
+Valid until: Friday, 31 December, 2055
+----------
+
+BUILD SUCCESSFUL in 6s
+1 actionable task: 1 executed
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.3.1/userguide/configuration_cache_enabling.html

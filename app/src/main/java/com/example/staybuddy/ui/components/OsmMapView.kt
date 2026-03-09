@@ -29,13 +29,6 @@ fun OsmMapView(
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     
-    // Manage Osmdroid configuration
-    LaunchedEffect(Unit) {
-        Configuration.getInstance().load(context, context.getSharedPreferences("osmdroid", Context.MODE_PRIVATE))
-        // Important: sets the user agent to avoid being blocked by OSM servers. Usually BuildConfig.APPLICATION_ID
-        Configuration.getInstance().userAgentValue = context.packageName
-    }
-    
     // Remember map view to be used across recompositions but managed by AndroidView
     val mapView = remember {
         MapView(context).apply {
@@ -55,33 +48,40 @@ fun OsmMapView(
         }
     }
     
+    // Handle user location overlay with lifecycle
+    val myLocationOverlay = remember {
+        MyLocationNewOverlay(GpsMyLocationProvider(context), mapView).apply {
+            enableMyLocation()
+        }
+    }
+    
     // Handle Lifecycle events
     DisposableEffect(lifecycleOwner) {
         val observer = object : DefaultLifecycleObserver {
             override fun onResume(owner: LifecycleOwner) {
                 mapView.onResume()
+                myLocationOverlay.enableMyLocation()
             }
             override fun onPause(owner: LifecycleOwner) {
                 mapView.onPause()
-            }
-            override fun onDestroy(owner: LifecycleOwner) {
-                mapView.onDetach()
+                myLocationOverlay.disableMyLocation()
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
+            myLocationOverlay.disableMyLocation()
             mapView.onDetach()
         }
     }
     
     // Update markers when listings change
-    LaunchedEffect(listings) {
-        // Clear all map overlays except my location overlay
-        val nonMarkerOverlays = mapView.overlays.filter { it is MyLocationNewOverlay }
+    LaunchedEffect(listings, currentLocation) {
         mapView.overlays.clear()
-        mapView.overlays.addAll(nonMarkerOverlays)
+        
+        // Add location overlay
+        mapView.overlays.add(myLocationOverlay)
         
         // Add markers
         listings.forEach { listing ->
@@ -101,20 +101,6 @@ fun OsmMapView(
             }
         }
         mapView.invalidate()
-    }
-    
-    // Handle user location overy
-    LaunchedEffect(currentLocation) {
-        if (currentLocation != null) {
-            val myLocationOverlay = MyLocationNewOverlay(GpsMyLocationProvider(context), mapView)
-            myLocationOverlay.enableMyLocation()
-            // Remove previous location overlays to avoid duplicates
-            mapView.overlays.removeAll { it is MyLocationNewOverlay }
-            mapView.overlays.add(myLocationOverlay)
-            
-            // Optionally center on user
-            // mapView.controller.animateTo(currentLocation)
-        }
     }
     
     AndroidView(

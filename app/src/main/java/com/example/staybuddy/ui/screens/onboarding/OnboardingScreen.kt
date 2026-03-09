@@ -40,7 +40,8 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.example.staybuddy.utils.Constants
 import kotlinx.coroutines.launch
 
-private val Context.dataStore by preferencesDataStore(name = Constants.DATASTORE_NAME)
+// context.dataStore removed, using PreferenceManager via ViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 
 data class OnboardingPage(
     val icon: ImageVector,
@@ -50,7 +51,8 @@ data class OnboardingPage(
 
 @Composable
 fun OnboardingScreen(
-    onNavigateToLogin: () -> Unit
+    onNavigateToLogin: () -> Unit,
+    viewModel: OnboardingViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -88,12 +90,8 @@ fun OnboardingScreen(
         ) {
             if (pagerState.currentPage < pages.size - 1) {
                 TextButton(onClick = {
-                    scope.launch {
-                        context.dataStore.edit { prefs ->
-                            prefs[booleanPreferencesKey(Constants.KEY_ONBOARDING_COMPLETED)] = true
-                        }
-                        onNavigateToLogin()
-                    }
+                    viewModel.completeOnboarding()
+                    onNavigateToLogin()
                 }) {
                     Text("Skip")
                 }
@@ -163,15 +161,13 @@ fun OnboardingScreen(
         // Get Started button
         Button(
             onClick = {
-                scope.launch {
-                    if (pagerState.currentPage < pages.size - 1) {
+                if (pagerState.currentPage < pages.size - 1) {
+                    scope.launch {
                         pagerState.animateScrollToPage(pagerState.currentPage + 1)
-                    } else {
-                        context.dataStore.edit { prefs ->
-                            prefs[booleanPreferencesKey(Constants.KEY_ONBOARDING_COMPLETED)] = true
-                        }
-                        onNavigateToLogin()
                     }
+                } else {
+                    viewModel.completeOnboarding()
+                    onNavigateToLogin()
                 }
             },
             modifier = Modifier
