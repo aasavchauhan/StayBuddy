@@ -24,7 +24,7 @@ object BottomNavItems {
     val studentItems = listOf(
         BottomNavItem("Home", Screen.Home.route, Icons.Filled.Home, Icons.Outlined.Home),
         BottomNavItem("Search", Screen.Search.route, Icons.Filled.Search, Icons.Outlined.Search),
-        BottomNavItem("Roommate", Screen.AddRoommatePost.route, Icons.Filled.Add, Icons.Outlined.Add),
+        BottomNavItem("Roommate", Screen.RoommateList.route, Icons.Filled.Add, Icons.Outlined.Add),
         BottomNavItem("Chats", Screen.ChatList.route, Icons.Filled.Chat, Icons.Outlined.Chat),
         BottomNavItem("Profile", Screen.Profile.route, Icons.Filled.Person, Icons.Outlined.Person)
     )

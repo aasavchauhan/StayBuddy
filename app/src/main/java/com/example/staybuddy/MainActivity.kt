@@ -6,17 +6,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.staybuddy.ui.navigation.BottomNavItems
@@ -39,26 +32,25 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainApp() {
+fun MainApp(viewModel: MainViewModel = hiltViewModel()) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    val uiState by viewModel.uiState.collectAsState()
 
     // Screens that show the bottom navigation bar
     val bottomNavRoutes = listOf(
         Screen.Home.route,
         Screen.Search.route,
+        Screen.RoommateList.route,
         Screen.AddListing.route,
-        Screen.AddRoommatePost.route,
         Screen.ChatList.route,
         Screen.Profile.route
     )
 
     val showBottomBar = currentRoute in bottomNavRoutes
 
-    // Default to student items; will be updated based on user role
-    var userRole by remember { mutableStateOf("student") }
-    val bottomNavItems = if (userRole == "owner") {
+    val bottomNavItems = if (uiState.userRole == "owner") {
         BottomNavItems.ownerItems
     } else {
         BottomNavItems.studentItems
@@ -96,7 +88,8 @@ fun MainApp() {
         }
     ) { innerPadding ->
         NavGraph(
-            navController = navController
+            navController = navController,
+            modifier = Modifier.padding(innerPadding)
         )
     }
 }

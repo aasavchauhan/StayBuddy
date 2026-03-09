@@ -1,7 +1,7 @@
 package com.example.staybuddy.data.model
 
 data class ChatRoom(
-    val chatId: String = "",
+    val roomId: String = "",
     val participants: List<String> = emptyList(),
     val listingId: String = "",
     val lastMessage: String = "",

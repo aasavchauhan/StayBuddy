@@ -23,11 +23,17 @@ import com.example.staybuddy.ui.screens.roommate.RoommateListScreen
 import com.example.staybuddy.ui.screens.search.SearchScreen
 import com.example.staybuddy.ui.screens.splash.SplashScreen
 
+import androidx.compose.ui.Modifier
+
 @Composable
-fun NavGraph(navController: NavHostController) {
+fun NavGraph(
+    navController: NavHostController,
+    modifier: Modifier = Modifier
+) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Splash.route
+        startDestination = Screen.Splash.route,
+        modifier = modifier
     ) {
         composable(Screen.Splash.route) {
             SplashScreen(
@@ -137,7 +143,7 @@ fun NavGraph(navController: NavHostController) {
         composable(Screen.RoommateList.route) {
             RoommateListScreen(
                 onNavigateToAddPost = { navController.navigate(Screen.AddRoommatePost.route) },
-                onNavigateBack = { navController.popBackStack() }
+                onNavigateToChat = { chatId -> navController.navigate(Screen.Chat(chatId).route) }
             )
         }
 
@@ -161,7 +167,7 @@ fun NavGraph(navController: NavHostController) {
         composable(Screen.OwnerDashboard.route) {
             OwnerDashboardScreen(
                 onNavigateToAddListing = { navController.navigate(Screen.AddListing.route) },
-                onNavigateToListingDetail = { listingId ->
+                onNavigateToDetail = { listingId ->
                     navController.navigate(Screen.ListingDetail(listingId).route)
                 }
             )
