@@ -14,6 +14,8 @@ import androidx.compose.material.icons.filled.Message
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -147,7 +149,11 @@ fun RoommateListScreen(
                             RoommatePostCard(
                                 post = post,
                                 isOwnedByMe = post.userId == uiState.currentUserId,
-                                onChatClick = { onNavigateToChat(post.userId) },
+                                onChatClick = { 
+                                    viewModel.createChatChannel(post.userId) { channelId ->
+                                        onNavigateToChat(channelId)
+                                    }
+                                },
                                 onEditClick = { onNavigateToEditPost(post.postId) }
                             )
                         }

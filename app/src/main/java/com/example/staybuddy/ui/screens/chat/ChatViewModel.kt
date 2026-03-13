@@ -92,7 +92,15 @@ class ChatViewModel @Inject constructor(
                         messages = messages,
                         error = null
                     )
+                    markAsRead()
                 }
+        }
+    }
+
+    private fun markAsRead() {
+        val userId = auth.currentUser?.uid ?: return
+        viewModelScope.launch {
+            chatRepository.markMessagesAsRead(chatId, userId)
         }
     }
 

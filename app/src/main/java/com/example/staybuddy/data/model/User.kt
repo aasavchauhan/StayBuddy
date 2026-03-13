@@ -10,5 +10,6 @@ data class User(
     val city: String = "",
     val college: String = "",
     val profileImage: String = "",
+    val fcmToken: String = "",
     val createdAt: Long = System.currentTimeMillis()
 )

@@ -99,6 +99,9 @@ dependencies {
 
     // Image Loading
     implementation(libs.coil.compose)
+    
+    // Cloudinary
+    implementation(libs.cloudinary.android)
 
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)
@@ -109,6 +112,12 @@ dependencies {
 
     // Accompanist
     implementation(libs.accompanist.permissions)
+
+    // Stream Chat
+    implementation(libs.stream.chat.compose)
+    implementation(libs.stream.chat.offline)
+    implementation(libs.stream.chat.push.firebase)
+
 
     // Core & AppCompat
     implementation(libs.androidx.core.ktx)

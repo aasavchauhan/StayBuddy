@@ -10,6 +10,10 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.math.*
+import com.example.staybuddy.data.repository.FavoriteRepository
+import com.example.staybuddy.data.repository.AuthRepository
+import com.example.staybuddy.data.model.User
+import kotlinx.coroutines.flow.update
 
 data class HomeUiState(
     val recommendedListings: List<PgListing> = emptyList(),
@@ -19,7 +23,10 @@ data class HomeUiState(
     val selectedUniversity: String? = null,
     val userLocation: Pair<Double, Double>? = null,
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val favoriteIds: Set<String> = emptySet(),
+    val userName: String = "",
+    val selectedCategory: String = "All"
 )
 
 val CITIES = listOf("Vadodara", "Ahmedabad", "Surat", "Rajkot", "Gandhinagar", "Mumbai", "Pune", "Bangalore")
@@ -31,7 +38,9 @@ val UNIVERSITIES = listOf(
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val listingRepository: ListingRepository,
-    private val preferenceManager: PreferenceManager
+    private val preferenceManager: PreferenceManager,
+    private val favoriteRepository: FavoriteRepository,
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -40,6 +49,20 @@ class HomeViewModel @Inject constructor(
     init {
         observePreferences()
         loadData()
+        observeFavorites()
+        fetchUserName()
+    }
+
+    private fun fetchUserName() {
+        viewModelScope.launch {
+            authRepository.currentUser?.uid?.let { uid ->
+                authRepository.getUserFromFirestore(uid).onSuccess { user ->
+                    user?.let {
+                        _uiState.update { it.copy(userName = user.name) }
+                    }
+                }
+            }
+        }
     }
 
     private fun observePreferences() {
@@ -58,6 +81,16 @@ class HomeViewModel @Inject constructor(
                 // Refresh data if location/city changed significantly if needed
                 loadData()
             }
+        }
+    }
+
+    private fun observeFavorites() {
+        viewModelScope.launch {
+            favoriteRepository.getFavoriteListingIds()
+                .catch { /* Handle error gracefully or ignore */ }
+                .collect { ids ->
+                    _uiState.value = _uiState.value.copy(favoriteIds = ids.toSet())
+                }
         }
     }
 
@@ -95,7 +128,10 @@ class HomeViewModel @Inject constructor(
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         recommendedListings = listings.take(3),
-                        nearbyListings = listings.filter { it.city.contains(currentState.selectedCity, ignoreCase = true) },
+                        nearbyListings = listings.filter { 
+                            it.city.contains(currentState.selectedCity, ignoreCase = true) &&
+                            (currentState.selectedCategory == "All" || it.roomType.equals(currentState.selectedCategory, ignoreCase = true))
+                        },
                         listingsWithDistance = listingsWithDist,
                         userLocation = userLocation
                     )
@@ -127,6 +163,17 @@ class HomeViewModel @Inject constructor(
     }
     
     fun toggleFavorite(listingId: String) {
-        // TODO: Implement favorites logic when FavoritesRepository is ready
+        viewModelScope.launch {
+            if (_uiState.value.favoriteIds.contains(listingId)) {
+                favoriteRepository.removeFavorite(listingId)
+            } else {
+                favoriteRepository.addFavorite(listingId)
+            }
+        }
+    }
+
+    fun updateCategory(category: String) {
+        _uiState.update { it.copy(selectedCategory = category) }
+        loadData()
     }
 }

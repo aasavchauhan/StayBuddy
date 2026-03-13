@@ -30,8 +30,28 @@ data class RoommateListUiState(
 @HiltViewModel
 class RoommateListViewModel @Inject constructor(
     private val roommateRepository: RoommateRepository,
-    private val auth: FirebaseAuth
+    private val auth: FirebaseAuth,
+    private val chatClient: io.getstream.chat.android.client.ChatClient
 ) : ViewModel() {
+
+    fun createChatChannel(otherUserId: String, onComplete: (String) -> Unit) {
+        val currentUserId = auth.currentUser?.uid ?: return
+        
+        // Members must be sorted alphabetically for a consistent CID if using ID-based creation
+        // Alternatively, use messaging type and let Stream handle it or generate a unique ID
+        val members = listOf(currentUserId, otherUserId)
+        
+        chatClient.createChannel(
+            channelType = "messaging",
+            channelId = "", // Let Stream generate ID or we can generate one
+            memberIds = members,
+            extraData = emptyMap()
+        ).enqueue { result ->
+            if (result.isSuccess) {
+                onComplete(result.getOrNull()?.cid ?: "")
+            }
+        }
+    }
 
     private val _uiState = MutableStateFlow(RoommateListUiState())
     val uiState: StateFlow<RoommateListUiState> = _uiState.asStateFlow()

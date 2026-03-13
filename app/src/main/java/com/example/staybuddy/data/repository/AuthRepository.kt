@@ -6,18 +6,21 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
 import android.net.Uri
+import io.getstream.chat.android.client.ChatClient
+import io.getstream.chat.android.models.User as StreamUser
 import java.util.UUID
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 @Singleton
 class AuthRepository @Inject constructor(
     private val auth: FirebaseAuth,
     private val firestore: FirebaseFirestore,
-    private val storage: FirebaseStorage
+    private val chatClient: ChatClient
 ) {
     val currentUser: FirebaseUser? get() = auth.currentUser
 
@@ -55,9 +58,62 @@ class AuthRepository @Inject constructor(
                 .document(user.userId)
                 .set(user)
                 .await()
+            
+            // Connect to Stream Chat
+            connectStreamUser(user)
+            
+            // Sync FCM token
+            getAndSyncFcmToken()
+            
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
+        }
+    }
+
+    private suspend fun connectStreamUser(user: User) {
+        val streamUser = StreamUser(
+            id = user.userId,
+            name = user.name,
+            image = user.profileImage
+        )
+        
+        // Using development token (API Secret needed for server-side, but 'Disable Auth Checks' allows any string or dev token)
+        // For development with "Auth Checks Disabled", we can use any string. 
+        // For development with "Auth Checks Enabled", we'd need a dev token or server token.
+        // I will use a dummy token for now, assuming user disables auth checks as planned.
+        val token = chatClient.devToken(user.userId) 
+        
+        chatClient.connectUser(streamUser, token).await()
+    }
+
+    suspend fun getAndSyncFcmToken() {
+        try {
+            val token = com.google.firebase.messaging.FirebaseMessaging.getInstance().token.await()
+            updateFcmToken(token)
+        } catch (e: Exception) {
+            // Log or handle error
+        }
+    }
+
+    suspend fun updateFcmToken(token: String) {
+        val userId = auth.currentUser?.uid ?: return
+        try {
+            firestore.collection(Constants.USERS_COLLECTION)
+                .document(userId)
+                .update("fcmToken", token)
+                .await()
+            
+            // Also notify Stream Chat about the FCM token
+            chatClient.addDevice(
+                io.getstream.chat.android.models.Device(
+                    token = token,
+                    pushProvider = io.getstream.chat.android.models.PushProvider.FIREBASE,
+                    providerName = null
+                )
+            ).await()
+        } catch (e: Exception) {
+            // Handle error, maybe the doc doesn't exist yet
         }
     }
 
@@ -88,11 +144,35 @@ class AuthRepository @Inject constructor(
 
     suspend fun uploadProfileImage(uri: Uri): Result<String> {
         return try {
-            val fileName = UUID.randomUUID().toString()
-            val ref = storage.reference.child("${Constants.PROFILE_IMAGES_PATH}/$fileName")
-            ref.putFile(uri).await()
-            val downloadUrl = ref.downloadUrl.await()
-            Result.success(downloadUrl.toString())
+            val userId = auth.currentUser?.uid ?: UUID.randomUUID().toString()
+            
+            val secureUrl = kotlinx.coroutines.suspendCancellableCoroutine<String> { continuation ->
+                val requestId = com.cloudinary.android.MediaManager.get().upload(uri)
+                    .option("folder", "staybuddy/profile_images")
+                    .option("public_id", "avatar_$userId") // Overwrite avatar for same user
+                    .callback(object : com.cloudinary.android.callback.UploadCallback {
+                        override fun onStart(requestId: String) {}
+                        override fun onProgress(requestId: String, bytes: Long, totalBytes: Long) {}
+                        
+                        override fun onSuccess(requestId: String, resultData: Map<*, *>) {
+                            val url = resultData["secure_url"] as String
+                            continuation.resume(url) {}
+                        }
+                        
+                        override fun onError(requestId: String, error: com.cloudinary.android.callback.ErrorInfo) {
+                            continuation.resumeWithException(Exception(error.description))
+                        }
+                        
+                        override fun onReschedule(requestId: String, error: com.cloudinary.android.callback.ErrorInfo) {}
+                    })
+                    .dispatch()
+                    
+                continuation.invokeOnCancellation {
+                    com.cloudinary.android.MediaManager.get().cancelRequest(requestId)
+                }
+            }
+            
+            Result.success(secureUrl)
         } catch (e: Exception) {
             Result.failure(e)
         }

@@ -13,10 +13,14 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
-import com.google.accompanist.permissions.*
-import com.google.android.gms.location.LocationServices
+import androidx.compose.animation.*
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.LocationOn
@@ -30,7 +34,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.foundation.BorderStroke
+import com.google.android.gms.location.LocationServices
 import com.example.staybuddy.ui.components.PgListingCard
+
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -137,35 +144,99 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(bottom = 80.dp) // Space for bottom nav
             ) {
-                // Search Bar Placeholder
+                // Personalized Greeting
+                item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 24.dp)
+                    ) {
+                        Text(
+                            text = if (uiState.userName.isNotEmpty()) "Hello, ${uiState.userName}! 👋" else "Hello there! 👋",
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = "Find your perfect stay today",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+
+                // Revamped Search Bar
                 item {
                     Surface(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp)
-                            .clickable { onNavigateToSearch() },
-                        shape = RoundedCornerShape(24.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant
+                            .padding(horizontal = 16.dp)
+                            .clickable { onNavigateToSearch() }
+                            .animateContentSize(),
+                        shape = RoundedCornerShape(28.dp),
+                        color = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)),
+                        shadowElevation = 6.dp
                     ) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp),
+                                .padding(horizontal = 20.dp, vertical = 14.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Search,
                                 contentDescription = "Search",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(24.dp)
                             )
-                            Spacer(modifier = Modifier.width(12.dp))
+                            Spacer(modifier = Modifier.width(16.dp))
                             Text(
                                 text = "Search PGs, hostels...",
                                 style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                             )
                         }
                     }
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+
+                // Category Chips
+                item {
+                    val categories = listOf("All", "Full PG", "Shared", "Hostel")
+                    LazyRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        itemsIndexed(categories) { index, category ->
+                            val isSelected = uiState.selectedCategory == category
+                            AnimatedVisibility(
+                                visible = true,
+                                enter = slideInHorizontally(initialOffsetX = { it }) + fadeIn(),
+                                modifier = Modifier.padding(horizontal = 4.dp)
+                            ) {
+                                FilterChip(
+                                    selected = isSelected,
+                                    onClick = { viewModel.updateCategory(category) },
+                                    label = { 
+                                        Text(
+                                            text = category,
+                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                        ) 
+                                    },
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                        selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                                        containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp),
+                                        labelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                )
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
 
                 // Recommended Section
@@ -188,7 +259,7 @@ fun HomeScreen(
                             val listing = uiState.recommendedListings[page]
                             PgListingCard(
                                 listing = listing,
-                                isFavorite = false,
+                                isFavorite = uiState.favoriteIds.contains(listing.listingId),
                                 onCardClick = { onNavigateToListingDetail(listing.listingId) },
                                 onFavoriteClick = { viewModel.toggleFavorite(listing.listingId) }
                             )
@@ -253,13 +324,19 @@ fun HomeScreen(
                     }
                 } else {
                     items(uiState.nearbyListings) { listing ->
-                        PgListingCard(
-                            listing = listing,
-                            isFavorite = false, // TODO: Bind to actual favorites state
-                            onCardClick = { onNavigateToListingDetail(listing.listingId) },
-                            onFavoriteClick = { viewModel.toggleFavorite(listing.listingId) },
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                        )
+                        AnimatedVisibility(
+                            visible = true,
+                            enter = slideInVertically(initialOffsetY = { it / 2 }) + fadeIn(),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            PgListingCard(
+                                listing = listing,
+                                isFavorite = uiState.favoriteIds.contains(listing.listingId),
+                                onCardClick = { onNavigateToListingDetail(listing.listingId) },
+                                onFavoriteClick = { viewModel.toggleFavorite(listing.listingId) },
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                            )
+                        }
                     }
                 }
 

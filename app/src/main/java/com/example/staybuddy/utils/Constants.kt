@@ -12,6 +12,7 @@ object Constants {
     const val CHATS_COLLECTION = "chats"
     const val MESSAGES_COLLECTION = "messages"
     const val FAVORITES_COLLECTION = "favorites"
+    const val INQUIRIES_COLLECTION = "inquiries"
 
     // Firebase Storage Paths
     const val PG_IMAGES_PATH = "pg_images"

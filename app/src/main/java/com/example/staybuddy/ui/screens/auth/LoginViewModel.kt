@@ -15,6 +15,7 @@ import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialException
 import com.example.staybuddy.utils.Constants
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 
 data class LoginUiState(
@@ -22,7 +23,8 @@ data class LoginUiState(
     val password: String = "",
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
-    val isLoginSuccess: Boolean = false
+    val isLoginSuccess: Boolean = false,
+    val isNewUser: Boolean = false
 )
 
 @HiltViewModel
@@ -70,14 +72,16 @@ class LoginViewModel @Inject constructor(
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
             try {
                 val credentialManager = CredentialManager.create(context)
-                val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
-                    .setFilterByAuthorizedAccounts(false)
-                    .setServerClientId(Constants.WEB_CLIENT_ID)
-                    .setAutoSelectEnabled(true)
+                
+                // Use a nonce for security
+                val nonce = java.util.UUID.randomUUID().toString()
+                
+                val signInWithGoogleOption = GetSignInWithGoogleOption.Builder(Constants.WEB_CLIENT_ID)
+                    .setNonce(nonce)
                     .build()
 
                 val request: GetCredentialRequest = GetCredentialRequest.Builder()
-                    .addCredentialOption(googleIdOption)
+                    .addCredentialOption(signInWithGoogleOption)
                     .build()
 
                 val result = credentialManager.getCredential(context, request)
@@ -90,18 +94,21 @@ class LoginViewModel @Inject constructor(
                     val authResult = authRepository.signInWithGoogle(idToken)
                     authResult.fold(
                         onSuccess = { firebaseUser ->
-                            // Check if user exists in Firestore. If not, create a default profile.
+                            // Check if user exists in Firestore.
                             val profileResult = authRepository.getUserFromFirestore(firebaseUser.uid)
                             if (profileResult.isSuccess && profileResult.getOrNull() == null) {
-                                val newUser = com.example.staybuddy.data.model.User(
-                                    userId = firebaseUser.uid,
-                                    name = firebaseUser.displayName ?: "New User",
-                                    email = firebaseUser.email ?: "",
-                                    role = "student"
+                                // New user - redirect to FinishRegistration instead of saving directly
+                                _uiState.value = _uiState.value.copy(
+                                    isLoading = false,
+                                    isNewUser = true
                                 )
-                                authRepository.saveUserToFirestore(newUser)
+                            } else {
+                                // Existing user - proceed to Home
+                                _uiState.value = _uiState.value.copy(
+                                    isLoading = false,
+                                    isLoginSuccess = true
+                                )
                             }
-                            _uiState.value = _uiState.value.copy(isLoading = false, isLoginSuccess = true)
                         },
                         onFailure = { e ->
                             _uiState.value = _uiState.value.copy(

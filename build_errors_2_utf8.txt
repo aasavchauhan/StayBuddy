@@ -1,0 +1,290 @@
+﻿
+> Configure project :app
+WARNING: The option setting 'android.disallowKotlinSourceSets=false' is experimental.
+The current default is 'true'.
+
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:generateDebugBuildConfig UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:processDebugGoogleServices UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:processDebugNavigationResources
+> Task :app:parseDebugLocalResources
+> Task :app:generateDebugRFile
+> Task :app:kspDebugKotlin
+
+> Task :app:compileDebugKotlin FAILED
+./gradlew : e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/StayBuddyApp.kt:36:14 
+Unresolved reference 'withPlugin'.
+At line:1 char:1
++ ./gradlew :app:compileDebugKotlin > build_errors_2.txt 2>&1
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (e: file:///C:/U...e 'withPlugin'.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+e: 
+file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/data/repository/AuthRepository.kt:109:17 
+No parameter with name 'deviceToken' found.
+e: 
+file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/data/repository/AuthRepository.kt:110:17 
+No parameter with name 'pushProvider' found.
+e: 
+file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/data/repository/AuthRepository.kt:111:17 
+No parameter with name 'providerName' found.
+e: 
+file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/data/repository/AuthRepository.kt:111:17 
+No value passed for parameter 'device'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/notifications/StayBuddyMessagingServic
+e.kt:38:24 Unresolved reference 'onMessageReceived'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/components/PgListingCard.kt:68:30 
+'fun rememberRipple(bounded: Boolean = ..., radius: Dp = ..., color: Color = ...): Indication' is deprecated. 
+rememberRipple has been deprecated - it returns an old Indication implementation that is not compatible with the 
+new Indication APIs that provide notable performance improvements. Instead, use the new ripple APIs provided by 
+design system libraries, such as material and material3. If you are implementing your own design system library, 
+use createRippleNode to create your own custom ripple implementation that queries your own theme values. For a 
+migration guide and background information, please visit developer.android.com.
+e: 
+file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/chat/ChatListScreen.kt:34:13 
+No parameter with name 'isSearchEnabled' found.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/chat/ChatScreen.kt:42:13 
+No parameter with name 'channelId' found.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/chat/ChatScreen.kt:43:13 
+No value passed for parameter 'viewModelFactory'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/home/HomeScreen.kt:202:21 
+Unresolved reference 'LazyRow'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/home/HomeScreen.kt:207:25 
+Unresolved reference 'itemsIndexed'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/home/HomeScreen.kt:207:52 
+Cannot infer type for this parameter. Specify it explicitly.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/home/HomeScreen.kt:207:59 
+Cannot infer type for this parameter. Specify it explicitly.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/home/HomeScreen.kt:209:29 
+@Composable invocations can only happen from the context of a @Composable function
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/listing/ListingDetailScreen
+.kt:63:9 Unresolved reference 'InquiryDialog'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/listing/ListingDetailScreen
+.kt:66:27 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/listing/ListingDetailScreen
+.kt:66:33 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/listing/ListingDetailScreen
+.kt:66:39 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/listing/ListingDetailScreen
+.kt:120:61 Unresolved reference 'listing'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/listing/ListingDetailScreen
+.kt:215:21 Unresolved reference 'AnimatedVisibility'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/listing/ListingDetailScreen
+.kt:217:33 Unresolved reference 'slideInVertically'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/listing/ListingDetailScreen
+.kt:217:70 Unresolved reference 'it'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/listing/ListingDetailScreen
+.kt:217:78 Unresolved reference 'fadeIn'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/listing/ListingDetailScreen
+.kt:224:25 @Composable invocations can only happen from the context of a @Composable function
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/listing/ListingDetailScreen
+.kt:263:35 Argument type mismatch: actual type is 'String', but 'Modifier' was expected.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/listing/ListingDetailScreen
+.kt:264:35 Argument type mismatch: actual type is 'String', but 'Modifier' was expected.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/listing/ListingDetailScreen
+.kt:267:39 Argument type mismatch: actual type is 'String', but 'Modifier' was expected.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/listing/ListingDetailScreen
+.kt:308:25 Unresolved reference 'SectionTitle'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/listing/ListingDetailScreen
+.kt:319:25 Unresolved reference 'SectionTitle'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/listing/ListingDetailScreen
+.kt:320:25 The API of this layout is experimental and is likely to change in the future.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/listing/ListingDetailScreen
+.kt:322:29 No parameter with name 'mainAxisSpacing' found.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/listing/ListingDetailScreen
+.kt:323:29 No parameter with name 'crossAxisSpacing' found.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/listing/ListingDetailScreen
+.kt:326:33 Unresolved reference 'AmenityChip'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/listing/ListingDetailScreen
+.kt:333:25 Unresolved reference 'SectionTitle'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/listing/ListingDetailScreen
+.kt:635:2 Syntax error: Expecting '}'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/owner/OwnerDashboardScreen.
+kt:81:21 Unresolved reference 'AnimatedVisibility'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/owner/OwnerDashboardScreen.
+kt:81:64 Unresolved reference 'slideInVertically'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/owner/OwnerDashboardScreen.
+kt:81:102 Unresolved reference 'it'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/owner/OwnerDashboardScreen.
+kt:81:110 Unresolved reference 'fadeIn'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/owner/OwnerDashboardScreen.
+kt:82:25 @Composable invocations can only happen from the context of a @Composable function
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/owner/OwnerDashboardScreen.
+kt:84:21 Unresolved reference 'AnimatedVisibility'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/owner/OwnerDashboardScreen.
+kt:84:64 Unresolved reference 'slideInVertically'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/owner/OwnerDashboardScreen.
+kt:84:102 Unresolved reference 'it'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/owner/OwnerDashboardScreen.
+kt:84:110 Unresolved reference 'fadeIn'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/owner/OwnerDashboardScreen.
+kt:85:25 @Composable invocations can only happen from the context of a @Composable function
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/owner/OwnerDashboardScreen.
+kt:87:21 Unresolved reference 'AnimatedVisibility'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/owner/OwnerDashboardScreen.
+kt:87:64 Unresolved reference 'slideInVertically'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/owner/OwnerDashboardScreen.
+kt:87:102 Unresolved reference 'it'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/owner/OwnerDashboardScreen.
+kt:87:110 Unresolved reference 'fadeIn'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/owner/OwnerDashboardScreen.
+kt:88:25 @Composable invocations can only happen from the context of a @Composable function
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/owner/OwnerDashboardScreen.
+kt:111:25 Unresolved reference 'itemsIndexed'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/owner/OwnerDashboardScreen.
+kt:111:64 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/owner/OwnerDashboardScreen.
+kt:111:67 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/owner/OwnerDashboardScreen.
+kt:111:76 Unresolved reference 'listingId'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/owner/OwnerDashboardScreen.
+kt:111:91 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/owner/OwnerDashboardScreen.
+kt:111:98 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/owner/OwnerDashboardScreen.
+kt:112:29 Unresolved reference 'AnimatedVisibility'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/owner/OwnerDashboardScreen.
+kt:114:41 Unresolved reference 'slideInVertically'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/owner/OwnerDashboardScreen.
+kt:114:78 Unresolved reference 'it'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/owner/OwnerDashboardScreen.
+kt:114:90 Unresolved reference 'fadeIn'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/owner/OwnerDashboardScreen.
+kt:116:33 @Composable invocations can only happen from the context of a @Composable function
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/owner/OwnerDashboardScreen.
+kt:118:76 Unresolved reference 'listingId'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/owner/OwnerDashboardScreen.
+kt:119:85 Unresolved reference 'listingId'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:39
+:35 Unresolved reference 'hiltViewModel'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:56
+:33 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:77
+:50 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:80
+:58 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:84
+:67 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:86
+:59 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:90
+:64 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:10
+0:66 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:10
+9:66 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:11
+5:47 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:11
+5:73 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:11
+6:63 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:11
+9:81 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:12
+8:99 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:12
+8:120 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:13
+9:103 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:13
+9:124 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:14
+9:99 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:14
+9:120 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:16
+1:66 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:17
+1:47 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:17
+1:73 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:17
+2:63 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:17
+6:68 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:18
+3:69 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:18
+5:73 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:19
+0:54 Unresolved reference 'FontWeight'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:19
+5:66 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:21
+0:46 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:21
+7:31 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:21
+8:22 Unresolved reference 'clip'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:22
+0:22 Unresolved reference 'border'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:22
+0:31 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:22
+8:40 Unresolved reference 'ContentScale'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:22
+8:40 Argument type mismatch: actual type is 'ImageVector', but 'ContentScale' was expected.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:23
+4:53 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:24
+1:46 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:24
+6:26 Unresolved reference 'FontWeight'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:26
+3:24 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:26
+3:50 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:26
+4:39 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:27
+0:40 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:27
+5:59 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:27
+5:78 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:27
+7:59 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:27
+7:78 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:28
+9:26 Unresolved reference 'FontWeight'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:30
+4:11 Unresolved reference 'ImageVector'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:31
+2:38 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:31
+2:56 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:31
+6:41 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:31
+7:43 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:32
+5:49 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:33
+0:45 Unresolved reference 'dp'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:33
+6:30 Unresolved reference 'FontWeight'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/ProfileScreen.kt:35
+0:41 Unresolved reference 'dp'.
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileDebugKotlin'.
+> A failure occurred while executing 
+org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 6m 6s
+9 actionable tasks: 5 executed, 4 up-to-date

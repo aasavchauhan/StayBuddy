@@ -8,5 +8,6 @@ data class ChatRoom(
     val lastMessage: String = "",
     val lastMessageTime: Long = 0L,
     val confirmedBy: List<String> = emptyList(),
-    val isMatchConfirmed: Boolean = false
+    val isMatchConfirmed: Boolean = false,
+    val unreadCount: Map<String, Int> = emptyMap()
 )

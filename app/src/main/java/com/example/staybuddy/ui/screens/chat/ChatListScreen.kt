@@ -27,83 +27,15 @@ import java.util.*
 @Composable
 fun ChatListScreen(
     onNavigateToChat: (String) -> Unit,
-    viewModel: ChatListViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Messages") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            )
-        }
-    ) { paddingValues ->
-        if (uiState.isLoading) {
-            Box(modifier = Modifier.fillMaxSize().padding(paddingValues), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
-        } else if (uiState.error != null) {
-            Box(modifier = Modifier.fillMaxSize().padding(paddingValues), contentAlignment = Alignment.Center) {
-                Text(text = uiState.error!!, color = MaterialTheme.colorScheme.error)
-            }
-        } else if (uiState.chatRooms.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize().padding(paddingValues), contentAlignment = Alignment.Center) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
-                    modifier = Modifier.padding(32.dp)
-                ) {
-                    Surface(
-                        modifier = Modifier.size(120.dp),
-                        shape = CircleShape,
-                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Message,
-                            contentDescription = null,
-                            modifier = Modifier.padding(30.dp).fillMaxSize(),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(24.dp))
-                    Text(
-                        text = "No messages yet",
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Start a conversation with property owners or potential roommates to find your perfect stay!",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                    )
-                }
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(uiState.chatRooms, key = { it.roomId }) { room ->
-                    val otherUserId = room.participants.firstOrNull { it != uiState.currentUserId }
-                    val otherUserName = uiState.userNames[otherUserId] ?: "User ${otherUserId?.take(5) ?: "..."}"
-                    
-                    ChatRoomItem(
-                        room = room,
-                        otherUserName = otherUserName,
-                        onClick = { onNavigateToChat(room.roomId) }
-                    )
-                }
-            }
-        }
+    io.getstream.chat.android.compose.ui.theme.ChatTheme {
+        io.getstream.chat.android.compose.ui.channels.ChannelsScreen(
+            title = "Messages",
+            onChannelClick = { channel ->
+                onNavigateToChat(channel.cid)
+            },
+            onBackPressed = { /* Handle back if needed */ }
+        )
     }
 }
 
@@ -111,16 +43,21 @@ fun ChatListScreen(
 fun ChatRoomItem(
     room: ChatRoom,
     otherUserName: String,
+    unreadCount: Int,
     onClick: () -> Unit
 ) {
     val timeString = SimpleDateFormat("MMM dd, HH:mm", Locale.getDefault()).format(Date(room.lastMessageTime))
+    val hasUnread = unreadCount > 0
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() },
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            containerColor = if (hasUnread) 
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f)
+            else 
+                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
@@ -134,13 +71,13 @@ fun ChatRoomItem(
                 modifier = Modifier
                     .size(48.dp)
                     .clip(CircleShape),
-                color = MaterialTheme.colorScheme.primaryContainer
+                color = if (hasUnread) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primaryContainer
             ) {
                 Icon(
                     imageVector = Icons.Default.Person,
                     contentDescription = null,
                     modifier = Modifier.padding(12.dp),
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                    tint = if (hasUnread) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
             
@@ -155,28 +92,54 @@ fun ChatRoomItem(
                     Text(
                         text = otherUserName,
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = if (hasUnread) FontWeight.ExtraBold else FontWeight.Bold,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        color = if (hasUnread) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = timeString,
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = if (hasUnread) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontWeight = if (hasUnread) FontWeight.Bold else FontWeight.Normal
                     )
                 }
                 
                 Spacer(modifier = Modifier.height(4.dp))
                 
-                Text(
-                    text = if (room.lastMessage.isNotBlank()) room.lastMessage else "No messages yet",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = if (room.lastMessage.isNotBlank()) room.lastMessage else "No messages yet",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (hasUnread) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f),
+                        fontWeight = if (hasUnread) FontWeight.SemiBold else FontWeight.Normal
+                    )
+                    
+                    if (hasUnread) {
+                        Surface(
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(start = 8.dp)
+                        ) {
+                            Text(
+                                text = unreadCount.toString(),
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
             }
         }
     }

@@ -53,14 +53,17 @@ import androidx.compose.ui.tooling.preview.Preview
 fun LoginScreen(
     onNavigateToRegister: () -> Unit,
     onNavigateToHome: () -> Unit,
+    onNavigateToFinishRegistration: () -> Unit,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var passwordVisible by remember { mutableStateOf(false) }
 
-    LaunchedEffect(uiState.isLoginSuccess) {
+    LaunchedEffect(uiState.isLoginSuccess, uiState.isNewUser) {
         if (uiState.isLoginSuccess) {
             onNavigateToHome()
+        } else if (uiState.isNewUser) {
+            onNavigateToFinishRegistration()
         }
     }
 
@@ -183,7 +186,14 @@ fun LoginScreen(
         // Google Sign In
         val context = androidx.compose.ui.platform.LocalContext.current
         OutlinedButton(
-            onClick = { viewModel.signInWithGoogle(context) },
+            onClick = { 
+                val activity = context.findActivity()
+                if (activity != null) {
+                    viewModel.signInWithGoogle(activity)
+                } else {
+                    viewModel.signInWithGoogle(context)
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
@@ -213,3 +223,13 @@ fun LoginScreen(
         }
     }
 }
+
+fun android.content.Context.findActivity(): android.app.Activity? {
+    var currentContext = this
+    while (currentContext is android.content.ContextWrapper) {
+        if (currentContext is android.app.Activity) return currentContext
+        currentContext = currentContext.baseContext
+    }
+    return null
+}
+

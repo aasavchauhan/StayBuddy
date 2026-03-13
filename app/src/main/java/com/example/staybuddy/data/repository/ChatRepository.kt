@@ -143,6 +143,41 @@ class ChatRepository @Inject constructor(
         }
     }
 
+    suspend fun markMessagesAsRead(roomId: String, userId: String): Result<Unit> {
+        return try {
+            firestore.runTransaction { transaction ->
+                val roomRef = firestore.collection(Constants.CHATS_COLLECTION).document(roomId)
+                val room = transaction.get(roomRef).toObject(ChatRoom::class.java)
+                    ?: throw Exception("Chat not found")
+                
+                // Reset unread count for this user
+                val updatedUnreadCount = room.unreadCount.toMutableMap()
+                updatedUnreadCount[userId] = 0
+                transaction.update(roomRef, "unreadCount", updatedUnreadCount)
+            }.await()
+            
+            // Separately update individual messages to avoid heavy transaction
+            val unreadMessages = firestore.collection(Constants.CHATS_COLLECTION)
+                .document(roomId)
+                .collection(Constants.MESSAGES_COLLECTION)
+                .whereEqualTo("isRead", false)
+                .get()
+                .await()
+                
+            val batch = firestore.batch()
+            for (doc in unreadMessages) {
+                if (doc.getString("senderId") != userId) {
+                    batch.update(doc.reference, "isRead", true)
+                }
+            }
+            batch.commit().await()
+            
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     suspend fun sendMessage(roomId: String, senderId: String, text: String): Result<Unit> {
         return try {
             val messageRef = firestore.collection(Constants.CHATS_COLLECTION)
@@ -161,16 +196,27 @@ class ChatRepository @Inject constructor(
             
             firestore.runTransaction { transaction ->
                 val roomRef = firestore.collection(Constants.CHATS_COLLECTION).document(roomId)
+                val room = transaction.get(roomRef).toObject(ChatRoom::class.java)
+                    ?: throw Exception("Room not found")
                 
                 // Write message
                 transaction.set(messageRef, message)
                 
-                // Update room lastMessage
+                // Update unread counts for other participants
+                val updatedUnreadCount = room.unreadCount.toMutableMap()
+                room.participants.forEach { participantId ->
+                    if (participantId != senderId) {
+                        updatedUnreadCount[participantId] = (updatedUnreadCount[participantId] ?: 0) + 1
+                    }
+                }
+                
+                // Update room lastMessage and unreadCount
                 transaction.update(
                     roomRef,
                     mapOf(
                         "lastMessage" to text,
-                        "lastMessageTime" to message.timestamp
+                        "lastMessageTime" to message.timestamp,
+                        "unreadCount" to updatedUnreadCount
                     )
                 )
             }.await()

@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.staybuddy.ui.screens.auth.LoginScreen
 import com.example.staybuddy.ui.screens.auth.RegisterScreen
+import com.example.staybuddy.ui.screens.auth.FinishRegistrationScreen
 import com.example.staybuddy.ui.screens.chat.ChatListScreen
 import com.example.staybuddy.ui.screens.chat.ChatScreen
 import com.example.staybuddy.ui.screens.favorites.FavoritesScreen
@@ -73,6 +74,11 @@ fun NavGraph(
                 },
                 onNavigateToHome = {
                     navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Login.route) { inclusive = true }
+                    }
+                },
+                onNavigateToFinishRegistration = {
+                    navController.navigate(Screen.FinishRegistration.route) {
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }
                 }
@@ -183,7 +189,16 @@ fun NavGraph(
                 },
                 onNavigateToDetail = { listingId ->
                     navController.navigate(Screen.ListingDetail(listingId).route)
+                },
+                onNavigateToInquiries = {
+                    navController.navigate(Screen.OwnerInquiries.route)
                 }
+            )
+        }
+
+        composable(Screen.OwnerInquiries.route) {
+            com.example.staybuddy.ui.screens.owner.OwnerInquiriesScreen(
+                onNavigateBack = { navController.popBackStack() }
             )
         }
 
@@ -223,6 +238,16 @@ fun NavGraph(
         composable(Screen.EditProfile.route) {
             EditProfileScreen(
                 onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(Screen.FinishRegistration.route) {
+            FinishRegistrationScreen(
+                onNavigateToHome = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Login.route) { inclusive = true }
+                    }
+                }
             )
         }
     }

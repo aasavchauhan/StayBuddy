@@ -9,21 +9,47 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.example.staybuddy.data.model.Inquiry
+import com.example.staybuddy.data.repository.FavoriteRepository
+import com.example.staybuddy.data.repository.InquiryRepository
+import com.google.firebase.auth.FirebaseAuth
 
 data class ListingDetailUiState(
     val listing: PgListing? = null,
     val isLoading: Boolean = false,
     val error: String? = null,
-    val isFavorite: Boolean = false
+    val isFavorite: Boolean = false,
+    val isInquirySent: Boolean = false
 )
 
 @HiltViewModel
 class ListingDetailViewModel @Inject constructor(
     private val listingRepository: ListingRepository,
+    private val favoriteRepository: FavoriteRepository,
+    private val inquiryRepository: InquiryRepository,
+    private val auth: FirebaseAuth,
+    private val chatClient: io.getstream.chat.android.client.ChatClient,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+
+    fun createChatChannel(otherUserId: String, onComplete: (String) -> Unit) {
+        val currentUserId = auth.currentUser?.uid ?: return
+        val members = listOf(currentUserId, otherUserId)
+        
+        chatClient.createChannel(
+            channelType = "messaging",
+            channelId = "",
+            memberIds = members,
+            extraData = emptyMap()
+        ).enqueue { result ->
+            if (result.isSuccess) {
+                onComplete(result.getOrNull()?.cid ?: "")
+            }
+        }
+    }
 
     private val listingId: String = checkNotNull(savedStateHandle["listingId"])
 
@@ -32,6 +58,7 @@ class ListingDetailViewModel @Inject constructor(
 
     init {
         loadListing()
+        observeFavoriteStatus()
     }
 
     private fun loadListing() {
@@ -53,8 +80,55 @@ class ListingDetailViewModel @Inject constructor(
         }
     }
     
+    private fun observeFavoriteStatus() {
+        viewModelScope.launch {
+            favoriteRepository.getFavoriteListingIds()
+                .catch { /* ignore */ }
+                .collect { ids ->
+                    _uiState.value = _uiState.value.copy(isFavorite = ids.contains(listingId))
+                }
+        }
+    }
+    
     fun toggleFavorite() {
-        // TODO: Implement favorites repository call
-        _uiState.value = _uiState.value.copy(isFavorite = !_uiState.value.isFavorite)
+        viewModelScope.launch {
+            // Optimistically toggle locally to reduce visual lag
+            val wasFavorite = _uiState.value.isFavorite
+            _uiState.value = _uiState.value.copy(isFavorite = !wasFavorite)
+
+            val result = if (wasFavorite) {
+                favoriteRepository.removeFavorite(listingId)
+            } else {
+                favoriteRepository.addFavorite(listingId)
+            }
+            
+            if (result.isFailure) {
+                // Revert if failed
+                _uiState.value = _uiState.value.copy(isFavorite = wasFavorite)
+            }
+        }
+    }
+
+    fun sendInquiry(moveInDate: Long, roomType: String, message: String) {
+        val currentListing = _uiState.value.listing ?: return
+        val userId = auth.currentUser?.uid ?: return
+
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            val inquiry = Inquiry(
+                listingId = currentListing.listingId,
+                userId = userId,
+                hostId = currentListing.ownerId,
+                moveInDate = moveInDate,
+                roomType = roomType,
+                message = message
+            )
+            val result = inquiryRepository.sendInquiry(inquiry)
+            result.onSuccess {
+                _uiState.value = _uiState.value.copy(isLoading = false, isInquirySent = true, error = null)
+            }.onFailure { e ->
+                _uiState.value = _uiState.value.copy(isLoading = false, error = e.message ?: "Failed to send inquiry")
+            }
+        }
     }
 }

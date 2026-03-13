@@ -1,0 +1,49 @@
+﻿
+> Configure project :app
+WARNING: The option setting 'android.disallowKotlinSourceSets=false' is experimental.
+The current default is 'true'.
+
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:generateDebugBuildConfig UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:processDebugGoogleServices UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:processDebugNavigationResources FAILED
+./gradlew : 
+At line:1 char:1
++ ./gradlew :app:compileDebugKotlin > build_errors.txt 2>&1
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:processDebugNavigationResources'.
+> Could not resolve all files for configuration ':app:debugRuntimeClasspath'.
+   > Could not find io.getstream.chat:stream-chat-android-compose:6.6.0.
+     Searched in the following locations:
+       - https://dl.google.com/dl/android/maven2/io/getstream/chat/stream-chat-android-compose/6.6.0/stream-chat-a
+ndroid-compose-6.6.0.pom
+       - https://repo.maven.apache.org/maven2/io/getstream/chat/stream-chat-android-compose/6.6.0/stream-chat-andr
+oid-compose-6.6.0.pom
+     Required by:
+         project ':app'
+   > Could not find io.getstream.chat:stream-chat-android-offline:6.6.0.
+     Searched in the following locations:
+       - https://dl.google.com/dl/android/maven2/io/getstream/chat/stream-chat-android-offline/6.6.0/stream-chat-a
+ndroid-offline-6.6.0.pom
+       - https://repo.maven.apache.org/maven2/io/getstream/chat/stream-chat-android-offline/6.6.0/stream-chat-andr
+oid-offline-6.6.0.pom
+     Required by:
+         project ':app'
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 22s
+5 actionable tasks: 1 executed, 4 up-to-date

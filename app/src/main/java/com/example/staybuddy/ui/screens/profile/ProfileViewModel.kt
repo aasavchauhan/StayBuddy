@@ -5,6 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.staybuddy.data.model.User
 import com.example.staybuddy.data.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.combine
+import com.example.staybuddy.data.repository.FavoriteRepository
+import com.example.staybuddy.data.repository.InquiryRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,13 +16,17 @@ import javax.inject.Inject
 
 data class ProfileUiState(
     val user: User? = null,
+    val favoritesCount: Int = 0,
+    val inquiriesCount: Int = 0,
     val isLoading: Boolean = true,
     val error: String? = null
 )
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val favoriteRepository: FavoriteRepository,
+    private val inquiryRepository: InquiryRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileUiState())
@@ -45,17 +52,24 @@ class ProfileViewModel @Inject constructor(
 
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-            val result = authRepository.getUserFromFirestore(currentUserId)
-            result.onSuccess { user ->
+            
+            // Get user profile
+            val userResult = authRepository.getUserFromFirestore(currentUserId)
+            
+            // Collect stats from repositories
+            combine(
+                favoriteRepository.getFavoriteListingIds(),
+                inquiryRepository.getInquiriesForUser(currentUserId)
+            ) { favorites, inquiries ->
+                Pair(favorites.size, inquiries.size)
+            }.collect { (favCount, inqCount) ->
+                val user = userResult.getOrNull()
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     user = user,
-                    error = if (user == null) "User profile not found" else null
-                )
-            }.onFailure { e ->
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = e.message ?: "Failed to load profile"
+                    favoritesCount = favCount,
+                    inquiriesCount = inqCount,
+                    error = if (user == null && userResult.isSuccess) "User profile not found" else userResult.exceptionOrNull()?.message
                 )
             }
         }
