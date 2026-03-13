@@ -392,6 +392,7 @@ fun Step5Location(uiState: AddListingUiState, viewModel: AddListingViewModel) {
             color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(top = 8.dp)
+        )
     }
 }
 

@@ -39,7 +39,7 @@ fun ChatScreen(
 ) {
     io.getstream.chat.android.compose.ui.theme.ChatTheme {
         io.getstream.chat.android.compose.ui.messages.MessagesScreen(
-            channelId = chatId,
+            cid = chatId,
             onBackPressed = onNavigateBack
         )
 

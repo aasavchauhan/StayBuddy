@@ -35,7 +35,7 @@ class StayBuddyMessagingService : FirebaseMessagingService() {
         super.onMessageReceived(message)
         
         // Stream Chat handling
-        if (io.getstream.chat.android.push_firebase.FirebaseMessagingDelegate.handleRemoteMessage(message)) {
+        if (io.getstream.chat.android.push.firebase.FirebaseMessagingDelegate.handleRemoteMessage(message)) {
             // Stream handled it (e.g., standard chat notification)
             return
         }

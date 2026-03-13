@@ -577,63 +577,6 @@ fun SectionTitle(title: String) {
 }
 
 @Composable
-fun InquiryDialog(
-    listing: com.example.staybuddy.data.model.PgListing,
-    onDismiss: () -> Unit,
-    onConfirm: (String, String, String) -> Unit
-) {
-    var date by remember { mutableStateOf("") }
-    var inquiryType by remember { mutableStateOf("Visit") }
-    var message by remember { mutableStateOf("") }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Inquire about ${listing.title}") },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedTextField(
-                    value = date,
-                    onValueChange = { date = it },
-                    label = { Text("Preferred Date") },
-                    placeholder = { Text("e.g. Next Monday") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                
-                Text("Inquiry Type", style = MaterialTheme.typography.labelLarge)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    listOf("Visit", "Booking", "Question").forEach { type ->
-                        FilterChip(
-                            selected = inquiryType == type,
-                            onClick = { inquiryType = type },
-                            label = { Text(type) }
-                        )
-                    }
-                }
-
-                OutlinedTextField(
-                    value = message,
-                    onValueChange = { message = it },
-                    label = { Text("Message") },
-                    modifier = Modifier.fillMaxWidth(),
-                    minLines = 3
-                )
-            }
-        },
-        confirmButton = {
-            Button(onClick = { onConfirm(date, inquiryType, message) }) {
-                Text("Send Inquiry")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
-}
-
-
-@Composable
 fun AmenityChip(text: String) {
     Surface(
         shape = RoundedCornerShape(12.dp),
