@@ -1,26 +1,21 @@
 package com.example.staybuddy.notifications
 
-import com.example.staybuddy.data.repository.AuthRepository
+import com.example.staybuddy.notifications.NotificationHelper
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.example.staybuddy.data.repository.AuthRepository
 import dagger.hilt.android.AndroidEntryPoint
-import io.getstream.chat.android.client.ChatClient
-import io.getstream.chat.android.client.notifications.handler.NotificationConfig
-import io.getstream.chat.android.client.notifications.handler.NotificationHandlerFactory
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class StayBuddyMessagingService : FirebaseMessagingService() {
 
     @Inject
     lateinit var authRepository: AuthRepository
-
-    @Inject
-    lateinit var chatClient: ChatClient
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -34,12 +29,6 @@ class StayBuddyMessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
         
-        // Stream Chat handling
-        if (io.getstream.chat.android.push.firebase.FirebaseMessagingDelegate.handleRemoteMessage(message)) {
-            // Stream handled it (e.g., standard chat notification)
-            return
-        }
-
         // Custom handling for other notifications
         val title = message.notification?.title ?: message.data["title"] ?: "StayBuddy"
         val body = message.notification?.body ?: message.data["body"] ?: "You have a new update."

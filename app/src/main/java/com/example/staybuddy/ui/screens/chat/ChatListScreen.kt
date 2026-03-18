@@ -23,19 +23,90 @@ import com.example.staybuddy.data.model.ChatRoom
 import java.text.SimpleDateFormat
 import java.util.*
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatListScreen(
     onNavigateToChat: (String) -> Unit,
+    viewModel: ChatListViewModel = hiltViewModel()
 ) {
-    io.getstream.chat.android.compose.ui.theme.ChatTheme {
-        io.getstream.chat.android.compose.ui.channels.ChannelsScreen(
-            title = "Messages",
-            onChannelClick = { channel ->
-                onNavigateToChat(channel.cid)
-            },
-            onBackPressed = { /* Handle back if needed */ }
-        )
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    Scaffold(
+        topBar = {
+            Surface(
+                color = MaterialTheme.colorScheme.surface,
+                shadowElevation = 4.dp,
+                tonalElevation = 1.dp
+            ) {
+                Column(
+                    modifier = Modifier
+                        .statusBarsPadding()
+                        .padding(bottom = 8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Messages",
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Black,
+                            modifier = Modifier.padding(horizontal = 16.dp).weight(1f)
+                        )
+                    }
+                }
+            }
+        }
+    ) { paddingValues ->
+        if (uiState.isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        } else if (uiState.chatRooms.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(
+                        Icons.Default.Message, 
+                        contentDescription = null, 
+                        modifier = Modifier.size(64.dp), 
+                        tint = MaterialTheme.colorScheme.outlineVariant
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        "No messages yet", 
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(uiState.chatRooms) { room ->
+                    val otherUserId = room.participants.firstOrNull { it != uiState.currentUserId } ?: ""
+                    val otherUserName = uiState.userNames[otherUserId] ?: "User"
+                    val unreadCount = room.unreadCount[uiState.currentUserId] ?: 0
+                    
+                    ChatRoomItem(
+                        room = room,
+                        otherUserName = otherUserName,
+                        unreadCount = unreadCount,
+                        onClick = { onNavigateToChat(room.roomId) }
+                    )
+                }
+            }
+        }
     }
 }
 

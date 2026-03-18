@@ -129,6 +129,10 @@ fun OsmMapView(
                     marker.snippet = "₹${listing.price}/mo"
                     marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                     
+                    // Use custom marker icon
+                    val markerIcon = androidx.core.content.ContextCompat.getDrawable(context, com.example.staybuddy.R.drawable.ic_map_marker_premium)
+                    marker.icon = markerIcon
+                    
                     marker.setOnMarkerClickListener { _, _ ->
                         onMarkerClick(listing)
                         true

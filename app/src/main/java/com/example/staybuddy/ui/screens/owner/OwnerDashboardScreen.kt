@@ -23,6 +23,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -36,6 +40,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CardElevation
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.animation.*
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,19 +57,45 @@ fun OwnerDashboardScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("My Properties") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            )
+            Surface(
+                color = MaterialTheme.colorScheme.surface,
+                shadowElevation = 4.dp,
+                tonalElevation = 1.dp
+            ) {
+                Column(
+                    modifier = Modifier
+                        .statusBarsPadding()
+                        .padding(bottom = 8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Text(
+                            text = "My Business",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Black,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+            }
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = onNavigateToAddListing,
-                icon = { Icon(Icons.Default.Add, contentDescription = "Add Property") },
-                text = { Text("Add Property") }
-            )
+                shape = RoundedCornerShape(20.dp),
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                elevation = FloatingActionButtonDefaults.elevation(8.dp)
+            ) {
+                Icon(Icons.Default.Add, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Add Listing", fontWeight = FontWeight.Bold)
+            }
         }
     ) { paddingValues ->
         if (uiState.isLoading) {
@@ -80,27 +112,35 @@ fun OwnerDashboardScreen(
                     .fillMaxSize()
                     .padding(paddingValues)
             ) {
-                // Stats Grid
+                // Stats Grid - Premium Appearance
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        .padding(horizontal = 24.dp, vertical = 24.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     AnimatedVisibility(visible = true, enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(), modifier = Modifier.weight(1f)) {
-                        StatCard(title = "Total", value = uiState.totalListings.toString())
+                        StatCard(title = "Total", value = uiState.totalListings.toString(), color = MaterialTheme.colorScheme.primary)
                     }
                     AnimatedVisibility(visible = true, enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(), modifier = Modifier.weight(1f)) {
-                        StatCard(title = "Active", value = uiState.activeListings.toString())
+                        StatCard(title = "Active", value = uiState.activeListings.toString(), color = Color(0xFF4CAF50))
                     }
                     AnimatedVisibility(visible = true, enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(), modifier = Modifier.weight(1f)) {
                         StatCard(
                             title = "Inquiries", 
                             value = uiState.inquiries.count { it.status == "PENDING" }.toString(), 
+                            color = MaterialTheme.colorScheme.secondary,
                             modifier = Modifier.clickable { onNavigateToInquiries() }
                         )
                     }
                 }
+
+                Text(
+                    text = "Manage Listings",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Black,
+                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
+                )
                 
                 if (uiState.listings.isEmpty()) {
                     Box(modifier = Modifier.fillMaxSize().weight(1f), contentAlignment = Alignment.Center) {
@@ -162,27 +202,33 @@ fun OwnerDashboardScreen(
 }
 
 @Composable
-fun StatCard(title: String, value: String, modifier: Modifier = Modifier) {
-    Card(
+fun StatCard(title: String, value: String, color: Color, modifier: Modifier = Modifier) {
+    Surface(
         modifier = modifier,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        shape = RoundedCornerShape(20.dp),
+        color = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)),
+        shadowElevation = 2.dp
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
+                .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                letterSpacing = 1.sp
             )
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = value,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Black,
+                color = color
             )
         }
     }
@@ -197,15 +243,17 @@ fun OwnerPropertyCard(
     onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card(
+    Surface(
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        shape = RoundedCornerShape(24.dp),
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)),
+        shadowElevation = 2.dp
     ) {
         Column {
-            Box(modifier = Modifier.fillMaxWidth().height(160.dp)) {
+            Box(modifier = Modifier.fillMaxWidth().height(180.dp)) {
                 val imageUrl = if (listing.images.isNotEmpty()) listing.images[0] else null
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
@@ -217,82 +265,83 @@ fun OwnerPropertyCard(
                     modifier = Modifier.fillMaxSize()
                 )
                 
-                // Status Badge
+                // Status Badge - more refined
                 Surface(
                     modifier = Modifier
                         .align(Alignment.TopStart)
-                        .padding(8.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    color = if (listing.isActive) Color(0xFF4CAF50) else Color(0xFFF44336),
+                        .padding(12.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    color = (if (listing.isActive) Color(0xFF4CAF50) else Color(0xFFF44336)).copy(alpha = 0.9f),
                     contentColor = Color.White
                 ) {
                     Text(
-                        text = if (listing.isActive) "Active" else "Inactive",
+                        text = if (listing.isActive) "ACTIVE" else "DISABLED",
                         style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        fontWeight = FontWeight.Black,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
                     )
                 }
 
                 Row(
                     modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(8.dp),
+                        .align(Alignment.BottomEnd)
+                        .padding(12.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     IconButton(
                         onClick = onEditClick,
                         modifier = Modifier
-                            .background(Color.Black.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
-                            .size(36.dp)
+                            .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(12.dp))
+                            .size(40.dp)
                     ) {
                         Icon(Icons.Default.Edit, contentDescription = "Edit", tint = Color.White, modifier = Modifier.size(20.dp))
                     }
                     IconButton(
                         onClick = onDeleteClick,
                         modifier = Modifier
-                            .background(Color.Black.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
-                            .size(36.dp)
+                            .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(12.dp))
+                            .size(40.dp)
                     ) {
                         Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.White, modifier = Modifier.size(20.dp))
                     }
                 }
             }
             
-            Column(modifier = Modifier.padding(12.dp)) {
+            Column(modifier = Modifier.padding(20.dp)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.Top
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = listing.title,
                             style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Black,
+                            color = MaterialTheme.colorScheme.onSurface,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
+                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "₹${listing.price}/mo",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.ExtraBold,
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Black,
                             color = MaterialTheme.colorScheme.primary
                         )
                     }
                     
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
+                    Column(horizontalAlignment = Alignment.End) {
                         Text(
-                            text = "Visible",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            text = if (listing.isActive) "Live" else "Hidden",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = if (listing.isActive) Color(0xFF4CAF50) else MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Switch(
                             checked = listing.isActive,
-                            onCheckedChange = { onToggleStatus() }
+                            onCheckedChange = { onToggleStatus() },
+                            modifier = Modifier.scale(0.8f)
                         )
                     }
                 }

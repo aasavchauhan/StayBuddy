@@ -36,9 +36,11 @@ class SplashViewModel @Inject constructor(
             
             val currentUser = authRepository.currentUser
             if (currentUser != null) {
+                android.util.Log.d("SplashViewModel", "checkAuthState: User logged in, fetching profile")
                 // Ensure the user has a Firestore profile even if they logged in previously before the fix
                 val profileResult = authRepository.getUserFromFirestore(currentUser.uid)
                 if (profileResult.isSuccess && profileResult.getOrNull() == null) {
+                    android.util.Log.d("SplashViewModel", "checkAuthState: Profile missing, creating default")
                     val newUser = com.example.staybuddy.data.model.User(
                         userId = currentUser.uid,
                         name = currentUser.displayName ?: "New User",
@@ -46,9 +48,13 @@ class SplashViewModel @Inject constructor(
                         role = "student"
                     )
                     authRepository.saveUserToFirestore(newUser)
+                } else if (profileResult.isFailure) {
+                    android.util.Log.e("SplashViewModel", "checkAuthState: Profile fetch failed, proceeding to Home anyway")
                 }
+                android.util.Log.d("SplashViewModel", "checkAuthState: Navigating to Home")
                 _destination.value = SplashDestination.Home
             } else {
+                android.util.Log.d("SplashViewModel", "checkAuthState: No user, navigating to Login")
                 _destination.value = SplashDestination.Login
             }
         }

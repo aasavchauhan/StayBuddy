@@ -38,6 +38,14 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
+        <meta-data
+            android:name="cloudinary_cloud_name"
+            android:value="dufri0nc6" />
+        <meta-data
+            android:name="cloudinary_api_key"
+            android:value="289581127678316" />
+
     </application>
 
 </manifest>

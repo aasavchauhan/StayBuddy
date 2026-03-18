@@ -45,8 +45,22 @@ class LoginViewModel @Inject constructor(
 
     fun signInWithEmail() {
         val state = _uiState.value
+        
+        // Basic Validation
         if (state.email.isBlank() || state.password.isBlank()) {
             _uiState.value = state.copy(errorMessage = "Please fill in all fields")
+            return
+        }
+        
+        // Email Validation
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(state.email.trim()).matches()) {
+            _uiState.value = state.copy(errorMessage = "Please enter a valid email address")
+            return
+        }
+        
+        // Password Validation (min 6 chars as per 02_authentication.md)
+        if (state.password.length < 6) {
+            _uiState.value = state.copy(errorMessage = "Password must be at least 6 characters")
             return
         }
 

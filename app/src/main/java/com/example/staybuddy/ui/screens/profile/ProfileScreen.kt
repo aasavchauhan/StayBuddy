@@ -29,7 +29,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
-import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.draw.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.example.staybuddy.data.model.User

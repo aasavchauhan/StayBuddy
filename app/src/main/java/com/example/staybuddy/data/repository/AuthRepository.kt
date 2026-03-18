@@ -10,8 +10,6 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
 import android.net.Uri
-import io.getstream.chat.android.client.ChatClient
-import io.getstream.chat.android.models.User as StreamUser
 import java.util.UUID
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -19,8 +17,7 @@ import kotlin.coroutines.resumeWithException
 @Singleton
 class AuthRepository @Inject constructor(
     private val auth: FirebaseAuth,
-    private val firestore: FirebaseFirestore,
-    private val chatClient: ChatClient
+    private val firestore: FirebaseFirestore
 ) {
     val currentUser: FirebaseUser? get() = auth.currentUser
 
@@ -59,9 +56,6 @@ class AuthRepository @Inject constructor(
                 .set(user)
                 .await()
             
-            // Connect to Stream Chat
-            connectStreamUser(user)
-            
             // Sync FCM token
             getAndSyncFcmToken()
             
@@ -69,22 +63,6 @@ class AuthRepository @Inject constructor(
         } catch (e: Exception) {
             Result.failure(e)
         }
-    }
-
-    private suspend fun connectStreamUser(user: User) {
-        val streamUser = StreamUser(
-            id = user.userId,
-            name = user.name,
-            image = user.profileImage
-        )
-        
-        // Using development token (API Secret needed for server-side, but 'Disable Auth Checks' allows any string or dev token)
-        // For development with "Auth Checks Disabled", we can use any string. 
-        // For development with "Auth Checks Enabled", we'd need a dev token or server token.
-        // I will use a dummy token for now, assuming user disables auth checks as planned.
-        val token = chatClient.devToken(user.userId) 
-        
-        chatClient.connectUser(streamUser, token).await()
     }
 
     suspend fun getAndSyncFcmToken() {
@@ -104,14 +82,7 @@ class AuthRepository @Inject constructor(
                 .update("fcmToken", token)
                 .await()
             
-            // Also notify Stream Chat about the FCM token
-            chatClient.addDevice(
-                io.getstream.chat.android.models.Device(
-                    token = token,
-                    pushProvider = io.getstream.chat.android.models.PushProvider.FIREBASE,
-                    providerName = null
-                )
-            ).await()
+            Result.success(Unit)
         } catch (e: Exception) {
             // Handle error, maybe the doc doesn't exist yet
         }
@@ -131,13 +102,16 @@ class AuthRepository @Inject constructor(
 
     suspend fun getUserFromFirestore(userId: String): Result<User?> {
         return try {
-            val doc = firestore.collection(Constants.USERS_COLLECTION)
-                .document(userId)
-                .get()
-                .await()
-            val user = doc.toObject(User::class.java)
-            Result.success(user)
+            kotlinx.coroutines.withTimeout(5000) {
+                val doc = firestore.collection(Constants.USERS_COLLECTION)
+                    .document(userId)
+                    .get()
+                    .await()
+                val user = doc.toObject(User::class.java)
+                Result.success(user)
+            }
         } catch (e: Exception) {
+            android.util.Log.e("AuthRepository", "Error getting user from Firestore", e)
             Result.failure(e)
         }
     }

@@ -1,5 +1,6 @@
 package com.example.staybuddy.ui.screens.auth
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -12,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -43,159 +45,166 @@ fun FinishRegistrationScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(24.dp),
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Spacer(modifier = Modifier.height(24.dp))
+            
             Text(
                 text = "Welcome to StayBuddy!",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = "Please provide these details to help us personalize your experience.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 8.dp)
+                style = MaterialTheme.typography.displaySmall,
+                fontWeight = FontWeight.Black,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Start
             )
             
-            Spacer(modifier = Modifier.height(32.dp))
+            Text(
+                text = "Complete your profile to unlock all features",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                textAlign = TextAlign.Start
+            )
+
+            Spacer(modifier = Modifier.height(40.dp))
 
             // Role Selection
             Text(
-                text = "I am a",
-                style = MaterialTheme.typography.titleSmall,
+                text = "Who are you?",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
                 modifier = Modifier.fillMaxWidth()
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                FilterChip(
-                    selected = uiState.role == "student",
-                    onClick = { viewModel.onRoleChange("student") },
-                    label = { Text("Student") },
-                    modifier = Modifier.weight(1f)
-                )
-                FilterChip(
-                    selected = uiState.role == "owner",
-                    onClick = { viewModel.onRoleChange("owner") },
-                    label = { Text("PG Owner") },
-                    modifier = Modifier.weight(1f)
-                )
+                val roles = listOf("student" to "Student", "owner" to "PG Owner")
+                roles.forEach { (roleValue, label) ->
+                    val isSelected = uiState.role == roleValue
+                    Surface(
+                        onClick = { viewModel.onRoleChange(roleValue) },
+                        modifier = Modifier.weight(1f).height(56.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+                        border = BorderStroke(1.dp, if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant),
+                        contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(text = label, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-            // Name (Pre-filled but editable)
-            OutlinedTextField(
-                value = uiState.name,
-                onValueChange = viewModel::onNameChange,
-                label = { Text("Full Name") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Email (ReadOnly as it comes from Google)
-            OutlinedTextField(
-                value = uiState.email,
-                onValueChange = {},
-                label = { Text("Email") },
-                enabled = false,
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Phone
-            OutlinedTextField(
-                value = uiState.phone,
-                onValueChange = viewModel::onPhoneChange,
-                label = { Text("Phone Number") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Gender
-            Text(
-                text = "Gender",
-                style = MaterialTheme.typography.titleSmall,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            // Form Fields Helper
+            @Composable
+            fun FormField(
+                label: String,
+                value: String,
+                onValueChange: (String) -> Unit,
+                placeholder: String,
+                keyboardType: KeyboardType = KeyboardType.Text,
+                enabled: Boolean = true
             ) {
-                listOf("Male", "Female", "Other").forEach { gender ->
-                    FilterChip(
-                        selected = uiState.gender == gender,
-                        onClick = { viewModel.onGenderChange(gender) },
-                        label = { Text(gender) },
-                        modifier = Modifier.weight(1f)
+                Column(modifier = Modifier.fillMaxWidth().padding(bottom = 20.dp)) {
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    OutlinedTextField(
+                        value = value,
+                        onValueChange = onValueChange,
+                        placeholder = { Text(placeholder) },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+                        singleLine = true,
+                        enabled = enabled,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                            disabledBorderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                            disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        )
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(12.dp))
 
-            // City
-            OutlinedTextField(
-                value = uiState.city,
-                onValueChange = viewModel::onCityChange,
-                label = { Text("City") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
+            FormField("Full Name", uiState.name, viewModel::onNameChange, "e.g. John Doe")
+            FormField("Email Address", uiState.email, {}, "name@example.com", enabled = false)
+            FormField("Phone Number", uiState.phone, viewModel::onPhoneChange, "e.g. 9876543210", KeyboardType.Phone)
+
+            // Gender Selection
+            Text(
+                text = "Gender",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                listOf("Male", "Female", "Other").forEach { gender ->
+                    val isSelected = uiState.gender == gender
+                    Surface(
+                        onClick = { viewModel.onGenderChange(gender) },
+                        modifier = Modifier.weight(1f).height(48.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
+                        border = BorderStroke(1.dp, if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant),
+                        contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(text = gender, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
 
-            // College (only for students)
+            FormField("Current City", uiState.city, viewModel::onCityChange, "e.g. Delhi")
+
             if (uiState.role == "student") {
-                OutlinedTextField(
-                    value = uiState.college,
-                    onValueChange = viewModel::onCollegeChange,
-                    label = { Text("College/University") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
-                )
-                Spacer(modifier = Modifier.height(12.dp))
+                FormField("College / University", uiState.college, viewModel::onCollegeChange, "e.g. IIT Delhi")
             }
 
             // Error
-            if (uiState.errorMessage != null) {
-                Text(
-                    text = uiState.errorMessage!!,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(vertical = 8.dp)
-                )
+            uiState.errorMessage?.let { error ->
+                Surface(
+                    color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp)
+                ) {
+                    Text(
+                        text = error,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(12.dp),
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
-
-            Spacer(modifier = Modifier.height(24.dp))
 
             // Finish Button
             Button(
                 onClick = viewModel::finishRegistration,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
+                modifier = Modifier.fillMaxWidth().height(60.dp),
                 enabled = !uiState.isLoading,
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(16.dp),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
             ) {
                 if (uiState.isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onPrimary, strokeWidth = 2.dp)
                 } else {
-                    Text("Complete Registration", style = MaterialTheme.typography.titleMedium)
+                    Text("Complete Registration", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 }
             }
 

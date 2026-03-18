@@ -11,6 +11,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.sp
+import androidx.compose.material3.Surface
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Icon
@@ -82,7 +89,15 @@ fun SplashScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.primary),
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        MaterialTheme.colorScheme.primary,
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                        MaterialTheme.colorScheme.secondary
+                    )
+                )
+            ),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -92,25 +107,50 @@ fun SplashScreen(
                 .scale(scaleAnim)
                 .alpha(alphaAnim)
         ) {
-            Icon(
-                imageVector = Icons.Default.Home,
-                contentDescription = "StayBuddy Logo",
-                modifier = Modifier.size(80.dp),
-                tint = MaterialTheme.colorScheme.onPrimary
-            )
-            Spacer(modifier = Modifier.height(16.dp))
+            // Logo with subtle glow effect
+            Box(contentAlignment = Alignment.Center) {
+                Surface(
+                    modifier = Modifier.size(120.dp),
+                    shape = CircleShape,
+                    color = Color.White.copy(alpha = 0.15f)
+                ) {}
+                
+                Icon(
+                    imageVector = Icons.Default.Home,
+                    contentDescription = "StayBuddy Logo",
+                    modifier = Modifier.size(80.dp),
+                    tint = Color.White
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(24.dp))
+            
             Text(
                 text = "StayBuddy",
-                style = MaterialTheme.typography.displayLarge,
-                color = MaterialTheme.colorScheme.onPrimary,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.displayMedium,
+                color = Color.White,
+                fontWeight = FontWeight.ExtraBold,
+                letterSpacing = 2.sp
             )
+            
             Spacer(modifier = Modifier.height(8.dp))
+            
             Text(
-                text = "Find your perfect PG",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
+                text = "Your Home Away From Home",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.White.copy(alpha = 0.7f),
+                fontWeight = FontWeight.Medium
             )
         }
+        
+        // Bottom tagline or indicator
+        CircularProgressIndicator(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 64.dp)
+                .size(32.dp),
+            color = Color.White.copy(alpha = 0.5f),
+            strokeWidth = 2.dp
+        )
     }
 }

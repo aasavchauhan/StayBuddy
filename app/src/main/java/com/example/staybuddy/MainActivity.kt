@@ -33,6 +33,9 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainApp(viewModel: MainViewModel = hiltViewModel()) {
+    LaunchedEffect(Unit) {
+        android.util.Log.d("MainActivity", "MainApp: Composed")
+    }
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route

@@ -26,6 +26,9 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.School
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.background
 import androidx.compose.runtime.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
@@ -144,44 +147,46 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(bottom = 80.dp) // Space for bottom nav
             ) {
-                // Personalized Greeting
+                // Personalized Greeting with premium feel
                 item {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 24.dp)
+                            .padding(horizontal = 24.dp, vertical = 32.dp)
                     ) {
                         Text(
-                            text = if (uiState.userName.isNotEmpty()) "Hello, ${uiState.userName}! 👋" else "Hello there! 👋",
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = MaterialTheme.colorScheme.onSurface
+                            text = if (uiState.userName.isNotEmpty()) "Hey ${uiState.userName}! 👋" else "Find Your Home 👋",
+                            style = MaterialTheme.typography.displaySmall,
+                            fontWeight = FontWeight.Black,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            letterSpacing = (-1).sp
                         )
+                        Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "Find your perfect stay today",
+                            text = "Let's discover the best PGs and hostels near your university.",
                             style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                            lineHeight = 24.sp
                         )
                     }
                 }
 
-                // Revamped Search Bar
+                // Revamped Search Bar - consistent with SearchScreen
                 item {
                     Surface(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                            .clickable { onNavigateToSearch() }
-                            .animateContentSize(),
-                        shape = RoundedCornerShape(28.dp),
-                        color = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp),
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)),
-                        shadowElevation = 6.dp
+                            .padding(horizontal = 24.dp)
+                            .clickable { onNavigateToSearch() },
+                        shape = RoundedCornerShape(20.dp),
+                        color = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
+                        shadowElevation = 8.dp
                     ) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 20.dp, vertical = 14.dp),
+                                .padding(horizontal = 20.dp, vertical = 18.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
@@ -192,13 +197,14 @@ fun HomeScreen(
                             )
                             Spacer(modifier = Modifier.width(16.dp))
                             Text(
-                                text = "Search PGs, hostels...",
+                                text = "Search PGs, hostels, areas...",
                                 style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                                fontWeight = FontWeight.Medium
                             )
                         }
                     }
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(32.dp))
                 }
 
                 // Category Chips
@@ -239,15 +245,30 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                 }
 
-                // Recommended Section
+                // Recommended Section Header
                 if (uiState.recommendedListings.isNotEmpty()) {
                     item {
-                        Text(
-                            text = "Recommended PGs",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                        )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 24.dp, vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.Bottom
+                        ) {
+                            Text(
+                                text = "Recommended",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Black,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = "See All",
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.clickable { onNavigateToSearch() }.padding(bottom = 2.dp)
+                            )
+                        }
                         
                         val pagerState = rememberPagerState(pageCount = { uiState.recommendedListings.size })
                         HorizontalPager(
@@ -267,50 +288,63 @@ fun HomeScreen(
                     }
                 }
 
-                // Roommates Call to Action
+                // Roommates Call to Action - Vibrant Gradient feel
                 item {
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(32.dp))
                     Surface(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
+                            .padding(horizontal = 24.dp)
                             .clickable { onNavigateToRoommates() },
-                        shape = RoundedCornerShape(16.dp),
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        shape = RoundedCornerShape(24.dp),
+                        color = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                        shadowElevation = 4.dp
                     ) {
                         Row(
-                            modifier = Modifier.padding(16.dp),
+                            modifier = Modifier.padding(24.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = "Find Roommates",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold
+                                    text = "Find Your Roommate",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.Black
                                 )
                                 Text(
-                                    text = "Post requests or find a matching roomie",
+                                    text = "Connect with students who match your lifestyle and habits.",
                                     style = MaterialTheme.typography.bodyMedium,
-                                    modifier = Modifier.padding(top = 4.dp)
+                                    modifier = Modifier.padding(top = 8.dp),
+                                    lineHeight = 20.sp
                                 )
                             }
-                            Button(onClick = onNavigateToRoommates) {
-                                Text("Explore")
+                            IconButton(
+                                onClick = onNavigateToRoommates,
+                                modifier = Modifier
+                                    .padding(start = 16.dp)
+                                    .size(48.dp)
+                                    .background(MaterialTheme.colorScheme.secondary, RoundedCornerShape(16.dp))
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.ChevronRight,
+                                    contentDescription = "Explore",
+                                    tint = MaterialTheme.colorScheme.onSecondary
+                                )
                             }
                         }
                     }
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(32.dp))
                 }
 
-                // Nearby Section
+                // Nearby Section Header
                 item {
                     Text(
-                        text = "Nearby PGs",
+                        text = "Near You",
                         style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        fontWeight = FontWeight.Black,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp)
                     )
                 }
 

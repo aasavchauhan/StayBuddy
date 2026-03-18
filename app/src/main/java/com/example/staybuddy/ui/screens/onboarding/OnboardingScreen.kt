@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Home
@@ -34,6 +35,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Surface
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
@@ -80,20 +86,29 @@ fun OnboardingScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(24.dp)
+            .background(MaterialTheme.colorScheme.surface)
     ) {
         // Skip button
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .statusBarsPadding()
+                .padding(16.dp)
         ) {
             if (pagerState.currentPage < pages.size - 1) {
-                TextButton(onClick = {
-                    viewModel.completeOnboarding()
-                    onNavigateToLogin()
-                }) {
-                    Text("Skip")
+                TextButton(
+                    onClick = {
+                        viewModel.completeOnboarding()
+                        onNavigateToLogin()
+                    },
+                    modifier = Modifier.align(Alignment.TopEnd)
+                ) {
+                    Text(
+                        "Skip",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         }
@@ -106,80 +121,112 @@ fun OnboardingScreen(
                 .fillMaxWidth()
         ) { page ->
             Column(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Icon(
-                    imageVector = pages[page].icon,
-                    contentDescription = null,
-                    modifier = Modifier.size(120.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-                Spacer(modifier = Modifier.height(40.dp))
+                // Illustration with glass/glow background
+                Box(contentAlignment = Alignment.Center) {
+                    Surface(
+                        modifier = Modifier.size(200.dp),
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.05f)
+                    ) {}
+                    
+                    Surface(
+                        modifier = Modifier.size(160.dp),
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                    ) {}
+                    
+                    Icon(
+                        imageVector = pages[page].icon,
+                        contentDescription = null,
+                        modifier = Modifier.size(100.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(60.dp))
+                
                 Text(
                     text = pages[page].title,
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.displaySmall,
+                    fontWeight = FontWeight.ExtraBold,
                     textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = MaterialTheme.colorScheme.onSurface,
+                    lineHeight = 44.sp
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+                
+                Spacer(modifier = Modifier.height(20.dp))
+                
                 Text(
                     text = pages[page].subtitle,
                     style = MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = 16.dp)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    lineHeight = 24.sp
                 )
             }
         }
 
-        // Dot indicators
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            repeat(pages.size) { index ->
-                Box(
-                    modifier = Modifier
-                        .padding(4.dp)
-                        .size(if (pagerState.currentPage == index) 12.dp else 8.dp)
-                        .clip(CircleShape)
-                        .background(
-                            if (pagerState.currentPage == index)
-                                MaterialTheme.colorScheme.primary
-                            else
-                                MaterialTheme.colorScheme.outline
-                        )
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        // Get Started button
-        Button(
-            onClick = {
-                if (pagerState.currentPage < pages.size - 1) {
-                    scope.launch {
-                        pagerState.animateScrollToPage(pagerState.currentPage + 1)
-                    }
-                } else {
-                    viewModel.completeOnboarding()
-                    onNavigateToLogin()
-                }
-            },
+        // Bottom Controls
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp)
+                .padding(horizontal = 32.dp)
+                .padding(bottom = 64.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = if (pagerState.currentPage == pages.size - 1) "Get Started" else "Next",
-                style = MaterialTheme.typography.titleMedium
-            )
-        }
+            // Dot indicators
+            Row(
+                modifier = Modifier.padding(bottom = 40.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                repeat(pages.size) { index ->
+                    val isSelected = pagerState.currentPage == index
+                    val width = if (isSelected) 32.dp else 8.dp
+                    val color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
+                    
+                    Box(
+                        modifier = Modifier
+                            .padding(4.dp)
+                            .height(8.dp)
+                            .width(width)
+                            .clip(CircleShape)
+                            .background(color)
+                    )
+                }
+            }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            // Get Started button
+            Button(
+                onClick = {
+                    if (pagerState.currentPage < pages.size - 1) {
+                        scope.launch {
+                            pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                        }
+                    } else {
+                        viewModel.completeOnboarding()
+                        onNavigateToLogin()
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(64.dp),
+                shape = RoundedCornerShape(20.dp),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp, pressedElevation = 4.dp)
+            ) {
+                Text(
+                    text = if (pagerState.currentPage == pages.size - 1) "Get Started" else "Continue",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
     }
 }

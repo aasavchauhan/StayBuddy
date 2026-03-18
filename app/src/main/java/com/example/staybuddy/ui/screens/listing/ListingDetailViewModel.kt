@@ -31,25 +31,10 @@ class ListingDetailViewModel @Inject constructor(
     private val favoriteRepository: FavoriteRepository,
     private val inquiryRepository: InquiryRepository,
     private val auth: FirebaseAuth,
-    private val chatClient: io.getstream.chat.android.client.ChatClient,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    fun createChatChannel(otherUserId: String, onComplete: (String) -> Unit) {
-        val currentUserId = auth.currentUser?.uid ?: return
-        val members = listOf(currentUserId, otherUserId)
-        
-        chatClient.createChannel(
-            channelType = "messaging",
-            channelId = "",
-            memberIds = members,
-            extraData = emptyMap()
-        ).enqueue { result ->
-            if (result.isSuccess) {
-                onComplete(result.getOrNull()?.cid ?: "")
-            }
-        }
-    }
+
 
     private val listingId: String = checkNotNull(savedStateHandle["listingId"])
 

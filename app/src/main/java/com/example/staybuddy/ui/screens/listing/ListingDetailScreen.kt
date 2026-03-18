@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 
 import androidx.compose.runtime.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -21,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -36,7 +38,7 @@ import androidx.compose.animation.core.*
 import com.example.staybuddy.ui.components.OsmMapView
 import org.osmdroid.util.GeoPoint
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun ListingDetailScreen(
     listingId: String,
@@ -80,72 +82,53 @@ fun ListingDetailScreen(
         bottomBar = {
             if (uiState.listing != null) {
                 Surface(
-                    color = MaterialTheme.colorScheme.surface,
-                    shadowElevation = 16.dp,
-                    tonalElevation = 2.dp,
-                    modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
+                    shadowElevation = 24.dp,
+                    tonalElevation = 4.dp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
                 ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))
-                            .padding(horizontal = 20.dp, vertical = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            .padding(horizontal = 24.dp, vertical = 20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "₹${uiState.listing!!.price}/mo",
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.ExtraBold,
+                                text = "₹${uiState.listing!!.price}",
+                                style = MaterialTheme.typography.displaySmall.copy(fontSize = 24.sp),
+                                fontWeight = FontWeight.Black,
                                 color = MaterialTheme.colorScheme.primary
                             )
                             Text(
-                                text = "incl. maintenance",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                text = "per month",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                fontWeight = FontWeight.Medium
                             )
                         }
                         
-                        IconButton(
+                        FilledTonalIconButton(
                             onClick = { /* TODO: Call intent */ },
-                            modifier = Modifier
-                                .size(48.dp)
-                                .background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha=0.5f), CircleShape)
+                            modifier = Modifier.size(52.dp),
+                            shape = CircleShape
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Call,
-                                contentDescription = "Call",
-                                tint = MaterialTheme.colorScheme.onSecondaryContainer
-                            )
+                            Icon(Icons.Default.Call, contentDescription = "Call", modifier = Modifier.size(24.dp))
                         }
                         
-                        OutlinedButton(
-                            onClick = { 
-                                uiState.listing?.let { listing ->
-                                    viewModel.createChatChannel(listing.ownerId) { channelId ->
-                                        onNavigateToChat(channelId)
-                                    }
-                                }
-                            },
-                            modifier = Modifier.height(48.dp),
-                            shape = RoundedCornerShape(12.dp),
-                            contentPadding = PaddingValues(horizontal = 12.dp)
-                        ) {
-                            Icon(Icons.Default.Message, contentDescription = null, modifier = Modifier.size(18.dp))
-                        }
-
                         Button(
                             onClick = { showInquiryDialog = true },
                             modifier = Modifier
-                                .height(48.dp)
-                                .weight(1.2f),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primary
-                            )
+                                .height(56.dp)
+                                .weight(1.5f),
+                            shape = RoundedCornerShape(16.dp),
+                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
                         ) {
-                            Text("Inquire", fontWeight = FontWeight.Bold)
+                            Text("Inquire Now", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
                         }
                     }
                 }
@@ -169,12 +152,12 @@ fun ListingDetailScreen(
                         .fillMaxSize()
                         .verticalScroll(scrollState)
                 ) {
-                    // Image Carousel with extended height
+                    // Image Carousel with extended height and gradient overlay
                     val pagerState = rememberPagerState(pageCount = { 
                         if (listing.images.isEmpty()) 1 else listing.images.size 
                     })
                     
-                    Box(modifier = Modifier.fillMaxWidth().height(320.dp)) {
+                    Box(modifier = Modifier.fillMaxWidth().height(400.dp)) {
                         HorizontalPager(
                             state = pagerState,
                             modifier = Modifier.fillMaxSize()
@@ -189,6 +172,23 @@ fun ListingDetailScreen(
                                 modifier = Modifier.fillMaxSize()
                             )
                         }
+
+                        // Gradient Overlays
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(120.dp)
+                                .align(Alignment.TopCenter)
+                                .background(Brush.verticalGradient(listOf(Color.Black.copy(alpha = 0.4f), Color.Transparent)))
+                        )
+                        
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(100.dp)
+                                .align(Alignment.BottomCenter)
+                                .background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.3f))))
+                        )
                         
                         // Refined Pager Indicators
                         if (listing.images.size > 1) {
@@ -196,22 +196,27 @@ fun ListingDetailScreen(
                                 Modifier
                                     .wrapContentHeight()
                                     .align(Alignment.BottomCenter)
-                                    .padding(bottom = 24.dp)
-                                    .background(Color.Black.copy(alpha = 0.2f), CircleShape)
-                                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                                    .padding(bottom = 40.dp)
+                                    .background(Color.Black.copy(alpha = 0.3f), CircleShape)
+                                    .padding(horizontal = 12.dp, vertical = 6.dp),
                                 horizontalArrangement = Arrangement.Center
                             ) {
                                 repeat(listing.images.size) { iteration ->
-                                    val color = if (pagerState.currentPage == iteration) 
-                                        Color.White 
-                                    else 
-                                        Color.White.copy(alpha = 0.5f)
+                                    val width by animateDpAsState(
+                                        targetValue = if (pagerState.currentPage == iteration) 18.dp else 6.dp,
+                                        label = "indicatorWidth"
+                                    )
+                                    val alpha by animateFloatAsState(
+                                        targetValue = if (pagerState.currentPage == iteration) 1f else 0.5f,
+                                        label = "indicatorAlpha"
+                                    )
                                     Box(
                                         modifier = Modifier
                                             .padding(2.dp)
                                             .clip(CircleShape)
-                                            .background(color)
-                                            .size(6.dp)
+                                            .background(Color.White.copy(alpha = alpha))
+                                            .height(6.dp)
+                                            .width(width)
                                     )
                                 }
                             }
@@ -221,14 +226,14 @@ fun ListingDetailScreen(
                     // Content Details
                     AnimatedVisibility(
                         visible = true,
-                        enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
+                        enter = slideInVertically(initialOffsetY = { 40 }) + fadeIn(),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
+                            .clip(RoundedCornerShape(topStart = 36.dp, topEnd = 36.dp))
                             .background(MaterialTheme.colorScheme.surface)
-                            .offset(y = (-24).dp)
+                            .offset(y = (-32).dp)
                     ) {
-                        Column(modifier = Modifier.padding(24.dp)) {
+                        Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 32.dp)) {
                         // Title and Rating
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -237,68 +242,79 @@ fun ListingDetailScreen(
                         ) {
                             Text(
                                 text = listing.title,
-                                style = MaterialTheme.typography.headlineMedium,
-                                fontWeight = FontWeight.ExtraBold,
-                                modifier = Modifier.weight(1f)
+                                style = MaterialTheme.typography.headlineLarge,
+                                fontWeight = FontWeight.Black,
+                                modifier = Modifier.weight(1f),
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                             
                             Surface(
-                                color = Color(0xFFFFB300).copy(alpha = 0.1f),
-                                shape = RoundedCornerShape(12.dp)
+                                color = Color(0xFFFFB300).copy(alpha = 0.12f),
+                                shape = RoundedCornerShape(16.dp),
+                                border = BorderStroke(1.dp, Color(0xFFFFB300).copy(alpha = 0.2f))
                             ) {
                                 Row(
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Icon(Icons.Default.Star, contentDescription = null, tint = Color(0xFFFFB300), modifier = Modifier.size(18.dp))
-                                    Spacer(Modifier.width(4.dp))
+                                    Icon(Icons.Default.Star, contentDescription = null, tint = Color(0xFFFFB300), modifier = Modifier.size(20.dp))
+                                    Spacer(Modifier.width(6.dp))
                                     Text(
                                         text = if (listing.rating > 0) "%.1f".format(listing.rating) else "NEW",
-                                        fontWeight = FontWeight.Bold,
-                                        style = MaterialTheme.typography.labelLarge
+                                        fontWeight = FontWeight.Black,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = Color(0xFFE65100)
                                     )
                                 }
                             }
                         }
                         
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
                         
                         Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Badge(listing.roomType, MaterialTheme.colorScheme.secondaryContainer)
-                            Badge(listing.genderAllowed, MaterialTheme.colorScheme.tertiaryContainer)
+                            Badge(listing.roomType.uppercase(), MaterialTheme.colorScheme.primaryContainer)
+                            Badge(listing.genderAllowed.uppercase(), MaterialTheme.colorScheme.secondaryContainer)
                             
                             if (listing.availableBeds > 0) {
-                                Badge("${listing.availableBeds} Left", MaterialTheme.colorScheme.errorContainer)
+                                Badge("${listing.availableBeds} BEDS LEFT", MaterialTheme.colorScheme.errorContainer)
                             }
                         }
                         
                         Spacer(modifier = Modifier.height(24.dp))
                         
-                        // Location Info
+                        // Location Info Card
                         Surface(
-                            shape = RoundedCornerShape(16.dp),
-                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+                            shape = RoundedCornerShape(24.dp),
+                            color = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                         ) {
                             Row(
-                                modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                                modifier = Modifier.padding(20.dp).fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.LocationOn,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(24.dp)
-                                )
+                                Box(
+                                    modifier = Modifier
+                                        .size(48.dp)
+                                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f), CircleShape),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.LocationOn,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
                                 Spacer(modifier = Modifier.width(16.dp))
                                 Column {
                                     Text(
                                         text = listing.area,
                                         style = MaterialTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.Bold
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface
                                     )
                                     Text(
                                         text = listing.city,
@@ -316,41 +332,44 @@ fun ListingDetailScreen(
                         Text(
                             text = listing.description,
                             style = MaterialTheme.typography.bodyLarge,
-                            lineHeight = 24.sp,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                            lineHeight = 26.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         
                         Spacer(modifier = Modifier.height(32.dp))
                         
-                        // Amenities GRID
+                        // Amenities Section
                         SectionTitle("Amenities")
                         FlowRow(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             listing.amenities.forEach { amenity ->
                                 AmenityChip(amenity)
                             }
                         }
 
-                        
                         Spacer(modifier = Modifier.height(32.dp))
                         
-                        // Map Location
+                        // Map Section
                         SectionTitle("Neighborhood")
-                        Box(
+                        Surface(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(220.dp)
-                                .clip(RoundedCornerShape(20.dp))
+                                .height(240.dp),
+                            shape = RoundedCornerShape(24.dp),
+                            shadowElevation = 8.dp,
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                         ) {
-                            if (listing.latitude != 0.0 && listing.longitude != 0.0) {
-                                OsmMapView(
-                                    listings = listOf(listing),
-                                    currentLocation = GeoPoint(listing.latitude, listing.longitude),
-                                    onMarkerClick = {}
-                                )
+                            Box(modifier = Modifier.fillMaxSize()) {
+                                if (listing.latitude != 0.0 && listing.longitude != 0.0) {
+                                    OsmMapView(
+                                        listings = listOf(listing),
+                                        currentLocation = GeoPoint(listing.latitude, listing.longitude),
+                                        onMarkerClick = {}
+                                    )
+                                }
                             }
                         }
                         
@@ -395,6 +414,7 @@ fun ListingDetailScreen(
                     }
                 }
             }
+        }
             
             // Floating Back and Top Bar
             Box(
@@ -419,15 +439,17 @@ fun ListingDetailScreen(
                     IconButton(
                         onClick = onNavigateBack,
                         modifier = Modifier
+                            .size(44.dp)
                             .background(
-                                Color.Black.copy(alpha = (0.3f * (1 - topBarAlpha)).coerceAtLeast(0f)),
+                                Color.Black.copy(alpha = (0.4f * (1 - topBarAlpha)).coerceAtLeast(0f)),
                                 CircleShape
                             )
                     ) {
                         Icon(
                             Icons.Default.ArrowBack, 
                             contentDescription = "Back",
-                            tint = if (topBarAlpha > 0.5f) MaterialTheme.colorScheme.onSurface else Color.White
+                            tint = if (topBarAlpha > 0.5f) MaterialTheme.colorScheme.onSurface else Color.White,
+                            modifier = Modifier.size(24.dp)
                         )
                     }
                     
@@ -435,8 +457,9 @@ fun ListingDetailScreen(
                         Text(
                             text = uiState.listing?.title ?: "",
                             style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(start = 12.dp)
+                            fontWeight = FontWeight.Black,
+                            modifier = Modifier.padding(start = 16.dp),
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
                     
@@ -445,21 +468,23 @@ fun ListingDetailScreen(
                     IconButton(
                         onClick = viewModel::toggleFavorite,
                         modifier = Modifier
+                            .size(44.dp)
                             .background(
-                                Color.Black.copy(alpha = (0.3f * (1 - topBarAlpha)).coerceAtLeast(0f)),
+                                Color.Black.copy(alpha = (0.4f * (1 - topBarAlpha)).coerceAtLeast(0f)),
                                 CircleShape
                             )
                     ) {
                         Icon(
                             imageVector = if (uiState.isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                             contentDescription = "Favorite",
-                            tint = if (uiState.isFavorite) Color.Red else (if (topBarAlpha > 0.5f) MaterialTheme.colorScheme.onSurface else Color.White)
+                            tint = if (uiState.isFavorite) Color.Red else if (topBarAlpha > 0.5f) MaterialTheme.colorScheme.onSurface else Color.White,
+                            modifier = Modifier.size(24.dp)
                         )
                     }
                 }
-            }
         }
     }
+}
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -554,14 +579,16 @@ fun InquiryDialog(
 @Composable
 fun Badge(text: String, containerColor: Color) {
     Surface(
-        shape = RoundedCornerShape(8.dp),
-        color = containerColor.copy(alpha = 0.9f)
+        shape = RoundedCornerShape(12.dp),
+        color = containerColor.copy(alpha = 0.15f),
+        border = BorderStroke(1.dp, containerColor.copy(alpha = 0.3f))
     ) {
         Text(
             text = text,
             style = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+            fontWeight = FontWeight.Black,
+            color = containerColor.copy(alpha = 1f).takeOrElse { MaterialTheme.colorScheme.primary },
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
         )
     }
 }
@@ -571,7 +598,8 @@ fun SectionTitle(title: String) {
     Text(
         text = title,
         style = MaterialTheme.typography.titleLarge,
-        fontWeight = FontWeight.ExtraBold,
+        fontWeight = FontWeight.Black,
+        color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier.padding(bottom = 16.dp)
     )
 }
@@ -579,17 +607,27 @@ fun SectionTitle(title: String) {
 @Composable
 fun AmenityChip(text: String) {
     Surface(
-        shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
-        color = MaterialTheme.colorScheme.surface
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)),
+        color = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(Icons.Default.CheckCircle, contentDescription = null, modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.primary)
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(text = text, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+            Icon(
+                imageVector = Icons.Default.CheckCircle, 
+                contentDescription = null, 
+                modifier = Modifier.size(18.dp), 
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.width(10.dp))
+            Text(
+                text = text, 
+                style = MaterialTheme.typography.bodyMedium, 
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
         }
     }
 }
