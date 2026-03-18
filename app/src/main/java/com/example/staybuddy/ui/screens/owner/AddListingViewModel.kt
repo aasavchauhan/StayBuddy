@@ -5,6 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.staybuddy.data.model.PgListing
+import com.example.staybuddy.data.repository.AuthRepository
 import com.example.staybuddy.data.repository.ImageStorageRepository
 import com.example.staybuddy.data.repository.ListingRepository
 import com.google.firebase.auth.FirebaseAuth
@@ -52,6 +53,7 @@ data class AddListingUiState(
 class AddListingViewModel @Inject constructor(
     private val listingRepository: ListingRepository,
     private val imageStorageRepository: ImageStorageRepository,
+    private val authRepository: AuthRepository,
     private val auth: FirebaseAuth,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -204,6 +206,8 @@ class AddListingViewModel @Inject constructor(
             
             val finalImageUrls = state.existingImageUrls + uploadedUrls
             
+            val ownerProfile = authRepository.getUserFromFirestore(userId).getOrNull()
+            
             val listing = PgListing(
                 listingId = targetListingId,
                 ownerId = userId,
@@ -219,6 +223,8 @@ class AddListingViewModel @Inject constructor(
                 genderAllowed = state.genderAllowed,
                 amenities = state.amenities.toList(),
                 images = finalImageUrls,
+                ownerName = ownerProfile?.name ?: "Property Owner",
+                ownerProfileImage = ownerProfile?.profileImage ?: "",
                 isActive = true
             )
             

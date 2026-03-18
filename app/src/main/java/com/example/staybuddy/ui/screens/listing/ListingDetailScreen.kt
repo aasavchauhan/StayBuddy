@@ -135,7 +135,7 @@ fun ListingDetailScreen(
             }
         }
     ) { paddingValues ->
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
             if (uiState.isLoading) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
@@ -390,12 +390,29 @@ fun ListingDetailScreen(
                                     shape = CircleShape,
                                     color = MaterialTheme.colorScheme.primaryContainer
                                 ) {
-                                    Icon(Icons.Default.Person, contentDescription = null, modifier = Modifier.padding(14.dp), tint = MaterialTheme.colorScheme.onPrimaryContainer)
+                                    if (listing.ownerProfileImage.isNotEmpty()) {
+                                        AsyncImage(
+                                            model = ImageRequest.Builder(LocalContext.current)
+                                                .data(listing.ownerProfileImage)
+                                                .crossfade(true)
+                                                .build(),
+                                            contentDescription = "Owner Profile",
+                                            contentScale = ContentScale.Crop,
+                                            modifier = Modifier.fillMaxSize()
+                                        )
+                                    } else {
+                                        Icon(
+                                            Icons.Default.Person, 
+                                            contentDescription = null, 
+                                            modifier = Modifier.padding(14.dp), 
+                                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                                        )
+                                    }
                                 }
                                 Spacer(modifier = Modifier.width(16.dp))
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
-                                        text = "PG Manager",
+                                        text = listing.ownerName.ifEmpty { "Property Owner" },
                                         style = MaterialTheme.typography.labelLarge,
                                         color = MaterialTheme.colorScheme.primary,
                                         fontWeight = FontWeight.Bold

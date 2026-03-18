@@ -22,6 +22,8 @@ data class PgListing(
     @set:PropertyName("isActive")
     var isActive: Boolean = true,
     val rating: Float = 0f,
+    val ownerName: String = "",
+    val ownerProfileImage: String = "",
     val createdAt: Long = System.currentTimeMillis()
 ) {
     constructor() : this("")
