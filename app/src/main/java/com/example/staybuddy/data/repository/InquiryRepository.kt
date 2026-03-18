@@ -31,11 +31,11 @@ class InquiryRepository @Inject constructor(
             .whereEqualTo("hostId", hostId)
             .orderBy("createdAt", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    close(error)
+                if (snapshot == null || snapshot.isEmpty) {
+                    trySend(emptyList())
                     return@addSnapshotListener
                 }
-                val inquiries = snapshot?.toObjects(Inquiry::class.java) ?: emptyList()
+                val inquiries = snapshot.toObjects(Inquiry::class.java)
                 trySend(inquiries)
             }
         awaitClose { listener.remove() }
@@ -46,11 +46,11 @@ class InquiryRepository @Inject constructor(
             .whereEqualTo("userId", userId)
             .orderBy("createdAt", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    close(error)
+                if (snapshot == null || snapshot.isEmpty) {
+                    trySend(emptyList())
                     return@addSnapshotListener
                 }
-                val inquiries = snapshot?.toObjects(Inquiry::class.java) ?: emptyList()
+                val inquiries = snapshot.toObjects(Inquiry::class.java)
                 trySend(inquiries)
             }
         awaitClose { listener.remove() }
