@@ -28,16 +28,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.staybuddy.data.model.RoommatePost
-import com.example.staybuddy.data.model.RoommatePostType
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.background
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
+import com.example.staybuddy.data.model.RoommatePost
+import com.example.staybuddy.data.model.RoommatePostType
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -128,46 +129,6 @@ fun RoommateListScreen(
                     .fillMaxSize()
                     .padding(paddingValues)
             ) {
-                // Post Type Tabs - Premium Pill Style
-                Surface(
-                    modifier = Modifier
-                        .padding(horizontal = 24.dp, vertical = 12.dp)
-                        .fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    color = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
-                ) {
-                    Row(modifier = Modifier.padding(4.dp)) {
-                        // Offering Tab
-                        Surface(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(44.dp)
-                                .clickable { viewModel.onTabSelected(RoommatePostType.OFFER) },
-                            shape = RoundedCornerShape(12.dp),
-                            color = if (uiState.selectedTab == RoommatePostType.OFFER) MaterialTheme.colorScheme.primary else Color.Transparent,
-                            contentColor = if (uiState.selectedTab == RoommatePostType.OFFER) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Text("Offering Space", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelLarge)
-                            }
-                        }
-                        // Seeking Tab
-                        Surface(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(44.dp)
-                                .clickable { viewModel.onTabSelected(RoommatePostType.SEEK) },
-                            shape = RoundedCornerShape(12.dp),
-                            color = if (uiState.selectedTab == RoommatePostType.SEEK) MaterialTheme.colorScheme.primary else Color.Transparent,
-                            contentColor = if (uiState.selectedTab == RoommatePostType.SEEK) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Text("Seeking Space", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelLarge)
-                            }
-                        }
-                    }
-                }
 
                 // Search Bar - Premium consistent design
                 Surface(
@@ -199,7 +160,7 @@ fun RoommateListScreen(
                 if (uiState.filteredPosts.isEmpty() && uiState.posts.isNotEmpty()) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(
-                            text = "No ${if (uiState.selectedTab == RoommatePostType.OFFER) "offers" else "requests"} match your filters.",
+                            text = "No room offers match your filters.",
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -324,12 +285,12 @@ fun RoommatePostCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 4.dp),
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(28.dp),
         color = MaterialTheme.colorScheme.surface,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)),
-        shadowElevation = 2.dp
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
+        shadowElevation = 8.dp
     ) {
-        Column(modifier = Modifier.padding(20.dp)) {
+        Column(modifier = Modifier.padding(24.dp)) {
             // Header with User Info and Price
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -343,47 +304,48 @@ fun RoommatePostCard(
                     Box(contentAlignment = Alignment.Center) {
                         Surface(
                             shape = androidx.compose.foundation.shape.CircleShape,
-                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
-                            modifier = Modifier.size(52.dp)
+                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
+                            modifier = Modifier.size(56.dp)
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Person,
-                                contentDescription = null,
-                                modifier = Modifier.padding(12.dp),
-                                tint = MaterialTheme.colorScheme.primary
-                            )
+                            if (post.userProfileImage.isNotEmpty()) {
+                                AsyncImage(
+                                    model = post.userProfileImage,
+                                    contentDescription = "Profile Picture",
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Default.Person,
+                                    contentDescription = null,
+                                    modifier = Modifier.padding(14.dp),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
                         }
                         // Status dot (online indicator)
                         Surface(
                             shape = androidx.compose.foundation.shape.CircleShape,
                             color = Color(0xFF4CAF50),
                             modifier = Modifier
-                                .size(14.dp)
+                                .size(16.dp)
                                 .align(Alignment.BottomEnd)
-                                .offset(x = (-2).dp, y = (-2).dp),
+                                .offset(x = 2.dp, y = 2.dp),
                             border = BorderStroke(2.dp, MaterialTheme.colorScheme.surface)
                         ) {}
                     }
                     Spacer(modifier = Modifier.width(16.dp))
                     Column {
-                        Surface(
-                            shape = RoundedCornerShape(6.dp),
-                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
-                        ) {
-                            Text(
-                                text = if (post.postType == com.example.staybuddy.data.model.RoommatePostType.OFFER) "Offering" else "Seeking",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.Black,
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = post.roomType,
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Black,
                             color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = if (post.userName.isNotEmpty()) "by ${post.userName} • Posted $dateString" else "Posted $dateString",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                         )
                     }
                 }
@@ -391,12 +353,12 @@ fun RoommatePostCard(
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
                         text = "₹${post.priceShare}",
-                        style = MaterialTheme.typography.titleLarge,
+                        style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Black,
                         color = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        text = "/mo",
+                        text = "per month",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                         fontWeight = FontWeight.Bold
@@ -404,89 +366,103 @@ fun RoommatePostCard(
                 }
             }
             
-            HorizontalDivider(
-                modifier = Modifier.padding(vertical = 20.dp),
-                thickness = 1.dp,
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-            )
+            Spacer(modifier = Modifier.height(24.dp))
             
-            // Location and Beds
+            // Location and Beds Row
             Row(
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                // Location Chip
                 Surface(
-                    shape = RoundedCornerShape(10.dp),
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp),
                     color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
-                    modifier = Modifier.size(32.dp)
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f))
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.LocationOn,
-                        contentDescription = null,
-                        modifier = Modifier.padding(6.dp),
-                        tint = MaterialTheme.colorScheme.secondary
-                    )
-                }
-                Spacer(modifier = Modifier.width(12.dp))
-                Text(
-                    text = "${post.location}, ${post.city}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontWeight = FontWeight.Medium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
-                )
-                
-                if (post.postType == com.example.staybuddy.data.model.RoommatePostType.OFFER) {
-                    Surface(
-                        shape = RoundedCornerShape(12.dp),
-                        color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.4f),
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary.copy(alpha = 0.2f))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Bed,
-                                contentDescription = null,
-                                modifier = Modifier.size(14.dp),
-                                tint = MaterialTheme.colorScheme.onTertiaryContainer
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = "${post.availableBeds}/${post.totalBeds} BEDS",
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Black,
-                                color = MaterialTheme.colorScheme.onTertiaryContainer
-                            )
-                        }
+                        Icon(
+                            Icons.Default.LocationOn, 
+                            contentDescription = null, 
+                            modifier = Modifier.size(16.dp),
+                            tint = MaterialTheme.colorScheme.secondary
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = post.location,
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+
+                // Beds Indicator
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.4f),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary.copy(alpha = 0.2f))
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Bed,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                            tint = MaterialTheme.colorScheme.tertiary
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "${post.availableBeds}/${post.totalBeds} Left",
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Black,
+                            color = MaterialTheme.colorScheme.onTertiaryContainer
+                        )
                     }
                 }
             }
             
             Spacer(modifier = Modifier.height(20.dp))
             
-            // Preferences Tags (Refined)
+            // Description Preview
+            if (post.description.isNotBlank()) {
+                Text(
+                    text = post.description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+            }
+            
+            // Preferences Tags
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 post.preferences.forEach { (key, value) ->
                     if (value.isNotEmpty()) {
                         Surface(
-                            shape = RoundedCornerShape(10.dp),
-                            color = MaterialTheme.colorScheme.surfaceColorAtElevation(4.dp),
-                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                            shape = RoundedCornerShape(8.dp),
+                            color = MaterialTheme.colorScheme.surfaceColorAtElevation(6.dp),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
                         ) {
                             Text(
-                                text = "$key: $value", 
+                                text = value, 
                                 style = MaterialTheme.typography.labelSmall,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
                             ) 
                         }
                     }
@@ -501,45 +477,33 @@ fun RoommatePostCard(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 if (isOwnedByMe) {
-                    OutlinedButton(
+                    FilledTonalIconButton(
                         onClick = onEditClick,
-                        modifier = Modifier.weight(0.4f).height(48.dp),
-                        shape = RoundedCornerShape(14.dp),
-                        border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.outline)
+                        modifier = Modifier.size(52.dp),
+                        shape = RoundedCornerShape(14.dp)
                     ) {
-                        Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Edit", fontWeight = FontWeight.Bold)
+                        Icon(Icons.Default.Edit, contentDescription = "Edit")
                     }
                 }
                 
                 Button(
                     onClick = onChatClick,
-                    modifier = Modifier.weight(if (isOwnedByMe) 0.6f else 1f).height(48.dp),
-                    shape = RoundedCornerShape(14.dp),
+                    modifier = Modifier.weight(1f).height(52.dp),
+                    shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary
                     ),
-                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
                 ) {
                     Icon(Icons.Default.Message, contentDescription = null, modifier = Modifier.size(20.dp))
-                    Spacer(modifier = Modifier.width(10.dp))
+                    Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = "Interested? Chat",
+                        text = "Connect with Roommate",
                         fontWeight = FontWeight.Black,
                         style = MaterialTheme.typography.titleSmall
                     )
                 }
             }
-            
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                text = "Posted $dateString",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
         }
     }
 }

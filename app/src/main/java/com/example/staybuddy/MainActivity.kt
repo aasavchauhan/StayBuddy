@@ -47,6 +47,8 @@ fun MainApp(viewModel: MainViewModel = hiltViewModel()) {
         Screen.Search.route,
         Screen.RoommateList.route,
         Screen.AddListing.ROUTE,
+        Screen.OwnerDashboard.route,
+        Screen.OwnerInquiries.route,
         Screen.ChatList.route,
         Screen.Profile.route
     )

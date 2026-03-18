@@ -102,7 +102,8 @@ fun NavGraph(
                 onNavigateToListingDetail = { listingId ->
                     navController.navigate(Screen.ListingDetail(listingId).route)
                 },
-                onNavigateToRoommates = { navController.navigate(Screen.RoommateList.route) }
+                onNavigateToRoommates = { navController.navigate(Screen.RoommateList.route) },
+                onNavigateToOwnerDashboard = { navController.navigate(Screen.OwnerDashboard.route) }
             )
         }
 

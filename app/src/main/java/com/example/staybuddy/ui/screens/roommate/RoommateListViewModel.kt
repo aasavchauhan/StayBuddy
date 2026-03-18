@@ -23,7 +23,6 @@ data class RoommateListUiState(
     val searchQuery: String = "",
     val maxBudget: Float = 50000f,
     val genderPreference: String = "Any",
-    val selectedTab: RoommatePostType = RoommatePostType.OFFER,
     val currentUserId: String? = null
 )
 
@@ -78,15 +77,11 @@ class RoommateListViewModel @Inject constructor(
         applyFilters()
     }
 
-    fun onTabSelected(type: RoommatePostType) {
-        _uiState.value = _uiState.value.copy(selectedTab = type)
-        applyFilters()
-    }
 
     private fun applyFilters() {
         val state = _uiState.value
         val filtered = state.posts.filter { post ->
-            val matchesTab = post.postType == state.selectedTab
+            val isOffer = post.postType == RoommatePostType.OFFER
             
             val matchesSearch = if (state.searchQuery.isNotBlank()) {
                 post.location.contains(state.searchQuery, ignoreCase = true) ||
@@ -100,7 +95,7 @@ class RoommateListViewModel @Inject constructor(
                 postGender == state.genderPreference || postGender == "Any"
             } else true
 
-            matchesTab && matchesSearch && matchesBudget && matchesGender
+            isOffer && matchesSearch && matchesBudget && matchesGender
         }
 
         _uiState.value = state.copy(filteredPosts = filtered)

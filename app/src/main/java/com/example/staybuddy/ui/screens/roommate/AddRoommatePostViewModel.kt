@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.staybuddy.data.model.RoommatePost
+import com.example.staybuddy.data.repository.AuthRepository
 import com.example.staybuddy.data.repository.RoommateRepository
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -38,6 +39,7 @@ data class AddRoommatePostUiState(
 @HiltViewModel
 class AddRoommatePostViewModel @Inject constructor(
     private val roommateRepository: RoommateRepository,
+    private val authRepository: AuthRepository,
     private val auth: FirebaseAuth,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -132,6 +134,9 @@ class AddRoommatePostViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(isLoading = true, error = null)
 
         viewModelScope.launch {
+            val userResult = authRepository.getUserFromFirestore(userId)
+            val user = userResult.getOrNull()
+            
             val post = RoommatePost(
                 postId = postId ?: "",
                 userId = userId,
@@ -146,7 +151,9 @@ class AddRoommatePostViewModel @Inject constructor(
                 preferences = state.preferences,
                 address = state.address,
                 latitude = state.latitude,
-                longitude = state.longitude
+                longitude = state.longitude,
+                userName = user?.name ?: "",
+                userProfileImage = user?.profileImage ?: ""
             )
             
             val result = if (postId != null) {

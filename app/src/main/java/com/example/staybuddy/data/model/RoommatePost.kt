@@ -19,6 +19,8 @@ data class RoommatePost(
     val address: String = "",
     val latitude: Double? = null,
     val longitude: Double? = null,
+    val userName: String = "",
+    val userProfileImage: String = "",
     @get:com.google.firebase.firestore.PropertyName("isActive")
     @set:com.google.firebase.firestore.PropertyName("isActive")
     var isActive: Boolean = true,

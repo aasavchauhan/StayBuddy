@@ -14,6 +14,7 @@ import com.example.staybuddy.data.repository.FavoriteRepository
 import com.example.staybuddy.data.repository.AuthRepository
 import com.example.staybuddy.data.model.User
 import kotlinx.coroutines.flow.update
+import com.example.staybuddy.utils.Constants
 
 data class HomeUiState(
     val recommendedListings: List<PgListing> = emptyList(),
@@ -26,6 +27,7 @@ data class HomeUiState(
     val error: String? = null,
     val favoriteIds: Set<String> = emptySet(),
     val userName: String = "",
+    val userRole: String = Constants.ROLE_STUDENT,
     val selectedCategory: String = "All"
 )
 
@@ -58,7 +60,10 @@ class HomeViewModel @Inject constructor(
             authRepository.currentUser?.uid?.let { uid ->
                 authRepository.getUserFromFirestore(uid).onSuccess { user ->
                     user?.let {
-                        _uiState.update { it.copy(userName = user.name) }
+                        _uiState.update { it.copy(
+                            userName = user.name,
+                            userRole = user.role.ifEmpty { Constants.ROLE_STUDENT }
+                        ) }
                     }
                 }
             }

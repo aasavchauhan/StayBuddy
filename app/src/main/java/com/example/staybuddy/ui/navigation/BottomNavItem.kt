@@ -11,6 +11,10 @@ import androidx.compose.material.icons.outlined.Chat
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.filled.Dashboard
+import androidx.compose.material.icons.outlined.Dashboard
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.ui.graphics.vector.ImageVector
 
 data class BottomNavItem(
@@ -30,8 +34,8 @@ object BottomNavItems {
     )
 
     val ownerItems = listOf(
-        BottomNavItem("Home", Screen.Home.route, Icons.Filled.Home, Icons.Outlined.Home),
-        BottomNavItem("Search", Screen.Search.route, Icons.Filled.Search, Icons.Outlined.Search),
+        BottomNavItem("Dashboard", Screen.OwnerDashboard.route, Icons.Filled.Dashboard, Icons.Outlined.Dashboard),
+        BottomNavItem("Manage", Screen.OwnerDashboard.route, Icons.AutoMirrored.Filled.List, Icons.AutoMirrored.Outlined.List),
         BottomNavItem("Add PG", Screen.AddListing.ROUTE, Icons.Filled.Add, Icons.Outlined.Add),
         BottomNavItem("Chats", Screen.ChatList.route, Icons.Filled.Chat, Icons.Outlined.Chat),
         BottomNavItem("Profile", Screen.Profile.route, Icons.Filled.Person, Icons.Outlined.Person)

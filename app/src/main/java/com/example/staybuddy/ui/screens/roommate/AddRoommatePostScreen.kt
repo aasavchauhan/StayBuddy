@@ -104,7 +104,7 @@ fun AddRoommatePostScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = "Looking for a roommate? Fill out the details below so others can find you.",
+                text = "Have a spare room? Post the details below so potential roommates can find you.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -120,39 +120,6 @@ fun AddRoommatePostScreen(
                     modifier = Modifier.padding(20.dp),
                     verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
-                    // Post Type Toggle - Premium Pill Style
-                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Text("I am...", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
-                        Surface(
-                            shape = RoundedCornerShape(16.dp),
-                            color = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
-                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
-                        ) {
-                            Row(modifier = Modifier.padding(4.dp)) {
-                                val isOffer = uiState.postType == RoommatePostType.OFFER
-                                Surface(
-                                    modifier = Modifier.weight(1f).height(44.dp).clickable { viewModel.setPostType(RoommatePostType.OFFER) },
-                                    shape = RoundedCornerShape(12.dp),
-                                    color = if (isOffer) MaterialTheme.colorScheme.primary else Color.Transparent,
-                                    contentColor = if (isOffer) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
-                                ) {
-                                    Box(contentAlignment = Alignment.Center) {
-                                        Text("Offering Room", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelMedium)
-                                    }
-                                }
-                                Surface(
-                                    modifier = Modifier.weight(1f).height(44.dp).clickable { viewModel.setPostType(RoommatePostType.SEEK) },
-                                    shape = RoundedCornerShape(12.dp),
-                                    color = if (!isOffer) MaterialTheme.colorScheme.primary else Color.Transparent,
-                                    contentColor = if (!isOffer) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
-                                ) {
-                                    Box(contentAlignment = Alignment.Center) {
-                                        Text("Searching for Room", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelMedium)
-                                    }
-                                }
-                            }
-                        }
-                    }
                     
                     OutlinedTextField(
                         value = uiState.city,
@@ -327,7 +294,7 @@ fun AddRoommatePostScreen(
                     CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onPrimary, strokeWidth = 3.dp)
                 } else {
                     Text(
-                        if (uiState.isEditing) "Update Your Request" else "Post Your Request",
+                        if (uiState.isEditing) "Update My Post" else "Post My Room",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )

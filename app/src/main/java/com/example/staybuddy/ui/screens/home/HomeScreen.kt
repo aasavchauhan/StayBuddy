@@ -10,6 +10,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Dashboard
+import com.example.staybuddy.utils.Constants
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -50,6 +52,7 @@ fun HomeScreen(
     onNavigateToSearch: () -> Unit,
     onNavigateToListingDetail: (String) -> Unit,
     onNavigateToRoommates: () -> Unit,
+    onNavigateToOwnerDashboard: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -155,7 +158,11 @@ fun HomeScreen(
                             .padding(horizontal = 24.dp, vertical = 32.dp)
                     ) {
                         Text(
-                            text = if (uiState.userName.isNotEmpty()) "Hey ${uiState.userName}! 👋" else "Find Your Home 👋",
+                            text = if (uiState.userRole == Constants.ROLE_OWNER) 
+                                "Owner Center 🏢" 
+                            else if (uiState.userName.isNotEmpty()) 
+                                "Hey ${uiState.userName}! 👋" 
+                            else "Find Your Home 👋",
                             style = MaterialTheme.typography.displaySmall,
                             fontWeight = FontWeight.Black,
                             color = MaterialTheme.colorScheme.onSurface,
@@ -163,7 +170,10 @@ fun HomeScreen(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "Let's discover the best PGs and hostels near your university.",
+                            text = if (uiState.userRole == Constants.ROLE_OWNER)
+                                "Manage your properties, track tenant inquiries, and grow your PG business with StayBuddy."
+                            else
+                                "Let's discover the best PGs and hostels near your university.",
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
                             lineHeight = 24.sp
@@ -288,53 +298,105 @@ fun HomeScreen(
                     }
                 }
 
-                // Roommates Call to Action - Vibrant Gradient feel
-                item {
-                    Spacer(modifier = Modifier.height(32.dp))
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 24.dp)
-                            .clickable { onNavigateToRoommates() },
-                        shape = RoundedCornerShape(24.dp),
-                        color = MaterialTheme.colorScheme.secondaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                        shadowElevation = 4.dp
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(24.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                // Conditional CTA based on Role
+                if (uiState.userRole != Constants.ROLE_OWNER) {
+                    // Roommates CTA for Students
+                    item {
+                        Spacer(modifier = Modifier.height(32.dp))
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 24.dp)
+                                .clickable { onNavigateToRoommates() },
+                            shape = RoundedCornerShape(24.dp),
+                            color = MaterialTheme.colorScheme.secondaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                            shadowElevation = 4.dp
                         ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = "Find Your Roommate",
-                                    style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.Black
-                                )
-                                Text(
-                                    text = "Connect with students who match your lifestyle and habits.",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    modifier = Modifier.padding(top = 8.dp),
-                                    lineHeight = 20.sp
-                                )
-                            }
-                            IconButton(
-                                onClick = onNavigateToRoommates,
-                                modifier = Modifier
-                                    .padding(start = 16.dp)
-                                    .size(48.dp)
-                                    .background(MaterialTheme.colorScheme.secondary, RoundedCornerShape(16.dp))
+                            Row(
+                                modifier = Modifier.padding(24.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.ChevronRight,
-                                    contentDescription = "Explore",
-                                    tint = MaterialTheme.colorScheme.onSecondary
-                                )
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = "Find Your Roommate",
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Black
+                                    )
+                                    Text(
+                                        text = "Connect with students who match your lifestyle and habits.",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        modifier = Modifier.padding(top = 8.dp),
+                                        lineHeight = 20.sp
+                                    )
+                                }
+                                IconButton(
+                                    onClick = onNavigateToRoommates,
+                                    modifier = Modifier
+                                        .padding(start = 16.dp)
+                                        .size(48.dp)
+                                        .background(MaterialTheme.colorScheme.secondary, RoundedCornerShape(16.dp))
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.ChevronRight,
+                                        contentDescription = "Explore",
+                                        tint = MaterialTheme.colorScheme.onSecondary
+                                    )
+                                }
                             }
                         }
+                        Spacer(modifier = Modifier.height(32.dp))
                     }
-                    Spacer(modifier = Modifier.height(32.dp))
+                } else {
+                    // Dashboard CTA for Owners
+                    item {
+                        Spacer(modifier = Modifier.height(32.dp))
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 24.dp)
+                                .clickable { onNavigateToOwnerDashboard() },
+                            shape = RoundedCornerShape(24.dp),
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                            shadowElevation = 4.dp
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(24.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = "Access Your Dashboard",
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Black
+                                    )
+                                    Text(
+                                        text = "Quickly view your listings, manage property status, and check new inquiries.",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        modifier = Modifier.padding(top = 8.dp),
+                                        lineHeight = 20.sp
+                                    )
+                                }
+                                IconButton(
+                                    onClick = onNavigateToOwnerDashboard,
+                                    modifier = Modifier
+                                        .padding(start = 16.dp)
+                                        .size(48.dp)
+                                        .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(16.dp))
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Dashboard,
+                                        contentDescription = "Dashboard",
+                                        tint = MaterialTheme.colorScheme.onPrimary
+                                    )
+                                }
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(32.dp))
+                    }
                 }
 
                 // Nearby Section Header
