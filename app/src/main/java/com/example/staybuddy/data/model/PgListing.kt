@@ -24,6 +24,7 @@ data class PgListing(
     val rating: Float = 0f,
     val ownerName: String = "",
     val ownerProfileImage: String = "",
+    val ownerPhone: String = "",
     val createdAt: Long = System.currentTimeMillis()
 ) {
     constructor() : this("")

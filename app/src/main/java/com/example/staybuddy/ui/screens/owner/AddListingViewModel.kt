@@ -225,6 +225,7 @@ class AddListingViewModel @Inject constructor(
                 images = finalImageUrls,
                 ownerName = ownerProfile?.name ?: "Property Owner",
                 ownerProfileImage = ownerProfile?.profileImage ?: "",
+                ownerPhone = ownerProfile?.phone ?: "",
                 isActive = true
             )
             

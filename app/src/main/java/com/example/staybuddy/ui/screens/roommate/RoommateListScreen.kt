@@ -6,13 +6,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Bed
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Message
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.Call
 import androidx.compose.material3.*
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -29,9 +31,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.staybuddy.util.WhatsAppUtils
 import androidx.compose.foundation.background
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -175,9 +179,6 @@ fun RoommateListScreen(
                             RoommatePostCard(
                                 post = post,
                                 isOwnedByMe = post.userId == uiState.currentUserId,
-                                onChatClick = { 
-                                    // Chat functionality removed to stabilize build
-                                },
                                 onEditClick = { onNavigateToEditPost(post.postId) }
                             )
                         }
@@ -275,9 +276,9 @@ fun RoommateFilterSheetContent(
 fun RoommatePostCard(
     post: RoommatePost,
     isOwnedByMe: Boolean,
-    onChatClick: () -> Unit,
     onEditClick: () -> Unit
 ) {
+    val context = LocalContext.current
     val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
     val dateString = dateFormat.format(Date(post.createdAt))
 
@@ -414,10 +415,10 @@ fun RoommatePostCard(
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Bed,
+                            imageVector = Icons.Filled.Home,
                             contentDescription = null,
-                            modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.tertiary
+                            modifier = Modifier.size(12.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
@@ -484,21 +485,35 @@ fun RoommatePostCard(
                     ) {
                         Icon(Icons.Default.Edit, contentDescription = "Edit")
                     }
+                } else {
+                    FilledTonalIconButton(
+                        onClick = {
+                            WhatsAppUtils.makePhoneCall(context, post.userPhone)
+                        },
+                        modifier = Modifier.size(52.dp),
+                        shape = RoundedCornerShape(14.dp)
+                    ) {
+                        Icon(Icons.Default.Call, contentDescription = "Call", modifier = Modifier.size(24.dp))
+                    }
                 }
                 
                 Button(
-                    onClick = onChatClick,
+                        onClick = {
+                            val msg = "Hi ${post.userName}, I saw your post on StayBuddy for a roommate in ${post.location}, ${post.city}."
+                            WhatsAppUtils.openWhatsApp(context, post.userPhone, msg)
+                        },
                     modifier = Modifier.weight(1f).height(52.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
+                        containerColor = Color(0xFF25D366), // WhatsApp Green
+                        contentColor = Color.White
                     ),
                     elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
                 ) {
-                    Icon(Icons.Default.Message, contentDescription = null, modifier = Modifier.size(20.dp))
+                    Icon(Icons.Default.Send, contentDescription = null, modifier = Modifier.size(20.dp))
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = "Connect with Roommate",
+                        text = "WhatsApp Roommate",
                         fontWeight = FontWeight.Black,
                         style = MaterialTheme.typography.titleSmall
                     )

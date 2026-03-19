@@ -153,7 +153,8 @@ class AddRoommatePostViewModel @Inject constructor(
                 latitude = state.latitude,
                 longitude = state.longitude,
                 userName = user?.name ?: "",
-                userProfileImage = user?.profileImage ?: ""
+                userProfileImage = user?.profileImage ?: "",
+                userPhone = user?.phone ?: ""
             )
             
             val result = if (postId != null) {

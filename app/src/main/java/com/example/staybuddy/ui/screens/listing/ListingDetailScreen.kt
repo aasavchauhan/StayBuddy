@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material3.*
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -36,6 +37,7 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 
 import com.example.staybuddy.ui.components.OsmMapView
+import com.example.staybuddy.util.WhatsAppUtils
 import org.osmdroid.util.GeoPoint
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -47,35 +49,14 @@ fun ListingDetailScreen(
     viewModel: ListingDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
     val scrollState = rememberScrollState()
     var showInquiryDialog by remember { mutableStateOf(false) }
     
     // Determine top bar transparency based on scroll
     val topBarAlpha = (scrollState.value / 300f).coerceIn(0f, 1f)
 
-    if (uiState.isInquirySent) {
-        AlertDialog(
-            onDismissRequest = { /* Handle reset? For now just navigate back or show toast */ },
-            title = { Text("Inquiry Sent! 📩") },
-            text = { Text("The property manager will get back to you soon. You can also chat with them directly.") },
-            confirmButton = {
-                Button(onClick = { onNavigateBack() }) {
-                    Text("Great!")
-                }
-            }
-        )
-    }
-
-    if (showInquiryDialog) {
-        InquiryDialog(
-            listing = uiState.listing!!,
-            onDismiss = { showInquiryDialog = false },
-            onConfirm = { date, type, msg ->
-                viewModel.sendInquiry(date, type, msg)
-                showInquiryDialog = false
-            }
-        )
-    }
+    // Removed InquiryDialog as it's replaced by WhatsApp redirection
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -113,7 +94,10 @@ fun ListingDetailScreen(
                         }
                         
                         FilledTonalIconButton(
-                            onClick = { /* TODO: Call intent */ },
+                            onClick = { 
+                                val phone = uiState.listing?.ownerPhone ?: ""
+                                WhatsAppUtils.makePhoneCall(context, phone)
+                            },
                             modifier = Modifier.size(52.dp),
                             shape = CircleShape
                         ) {
@@ -121,14 +105,24 @@ fun ListingDetailScreen(
                         }
                         
                         Button(
-                            onClick = { showInquiryDialog = true },
+                            onClick = { 
+                                val phone = uiState.listing?.ownerPhone ?: ""
+                                val msg = "Hi, I'm interested in your property ${uiState.listing?.title} listed on StayBuddy."
+                                WhatsAppUtils.openWhatsApp(context, phone, msg)
+                            },
                             modifier = Modifier
                                 .height(56.dp)
                                 .weight(1.5f),
                             shape = RoundedCornerShape(16.dp),
-                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
+                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF25D366), // WhatsApp Green
+                                contentColor = Color.White
+                            )
                         ) {
-                            Text("Inquire Now", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                            Icon(Icons.Default.Send, contentDescription = null, modifier = Modifier.size(20.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text("Chat on WhatsApp", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
                         }
                     }
                 }
@@ -633,15 +627,15 @@ fun AmenityChip(text: String) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                imageVector = Icons.Default.CheckCircle, 
-                contentDescription = null, 
-                modifier = Modifier.size(18.dp), 
-                tint = MaterialTheme.colorScheme.primary
+                imageVector = Icons.Default.Message,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp),
+                tint = Color.White
             )
             Spacer(modifier = Modifier.width(10.dp))
             Text(
-                text = text, 
-                style = MaterialTheme.typography.bodyMedium, 
+                text = text,
+                style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
             )
