@@ -3,6 +3,7 @@ name: Android CI & Auto-Release
 on:
   push:
     branches: [ "main" ]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -23,11 +24,34 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
+      - name: Decode Keystore
+        if: github.event_name != 'pull_request'
+        env:
+          ENCODED_STRING: ${{ secrets.RELEASE_KEYSTORE }}
+        run: |
+          if [ -n "$ENCODED_STRING" ]; then
+            echo $ENCODED_STRING | base64 -d > release.keystore
+            echo "Keystore decoded successfully"
+          else
+            echo "RELEASE_KEYSTORE secret is missing. Skipping signing."
+          fi
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug
+      - name: Build Release APK
+        env:
+          RELEASE_KEYSTORE_PATH: ../release.keystore
+          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+        run: |
+          if [ -f release.keystore ]; then
+            ./gradlew assembleRelease
+          else
+            echo "No keystore found, building debug instead"
+            ./gradlew assembleDebug
+          fi
 
       - name: Generate Tag Name
         id: tag_name
@@ -44,15 +68,18 @@ jobs:
           draft: false
           prerelease: false
           files: |
+            app/build/outputs/apk/release/app-release.apk
             app/build/outputs/apk/debug/app-debug.apk
           body: |
-            ### 🚀 Automated Build
-            This release was automatically generated from a push to the `main` branch.
-            
-            **Changes in this version:**
-            - Latest commits pushed to `main`.
+            ### 🚀 Production Release
+            This release contains the signed production APK for StayBuddy.
             
             **Artifacts:**
+            - `app-release.apk`: Signed production build (requires GitHub Secrets to be set up).
             - `app-debug.apk`: Standard debug build for testing.
+            
+            **Changes in this version:**
+            - Latest commits from `main`.
+            - Bug fixes and feature updates.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -33,10 +33,21 @@ android {
         jvmTarget = "17"
     }
 
+    signingConfigs {
+        create("release") {
+            // These properties should be set in environment variables (e.g., in GitHub Secrets)
+            storeFile = System.getenv("RELEASE_KEYSTORE_PATH")?.let { file(it) }
+            storePassword = System.getenv("RELEASE_KEYSTORE_PASSWORD")
+            keyAlias = System.getenv("RELEASE_KEY_ALIAS")
+            keyPassword = System.getenv("RELEASE_KEY_PASSWORD")
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
