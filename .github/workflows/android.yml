@@ -2,7 +2,7 @@ name: Android CI & Auto-Release
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "master" ]
     tags: [ "v*" ]
   workflow_dispatch:
 
