@@ -4,7 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.staybuddy.data.model.PgListing
 import com.example.staybuddy.data.manager.PreferenceManager
+import com.example.staybuddy.data.manager.UpdateChecker
+import com.example.staybuddy.data.manager.UpdateInfo
 import com.example.staybuddy.data.repository.ListingRepository
+import com.example.staybuddy.util.AnalyticsHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -42,17 +45,38 @@ class HomeViewModel @Inject constructor(
     private val listingRepository: ListingRepository,
     private val preferenceManager: PreferenceManager,
     private val favoriteRepository: FavoriteRepository,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val updateChecker: UpdateChecker,
+    private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+
+    val updateInfo: StateFlow<UpdateInfo> = updateChecker.updateInfo
 
     init {
         observePreferences()
         loadData()
         observeFavorites()
         fetchUserName()
+        checkForUpdates()
+        analyticsHelper.logScreenView("home")
+    }
+
+    private fun checkForUpdates() {
+        viewModelScope.launch {
+            updateChecker.checkForUpdate()
+        }
+    }
+
+    fun onUpdateClicked() {
+        updateChecker.openDownloadUrl()
+    }
+
+    fun dismissUpdate() {
+        // No-op: the dialog just closes. Could track dismissal in analytics.
+        analyticsHelper.logEvent("update_dismissed")
     }
 
     private fun fetchUserName() {

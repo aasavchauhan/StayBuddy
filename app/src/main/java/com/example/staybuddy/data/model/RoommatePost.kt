@@ -25,7 +25,13 @@ data class RoommatePost(
     @get:com.google.firebase.firestore.PropertyName("isActive")
     @set:com.google.firebase.firestore.PropertyName("isActive")
     var isActive: Boolean = true,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+    // Roommate matching compatibility fields (Sprint 4)
+    val genderPreference: String = "",
+    val sleepSchedule: String = "",
+    val cleanlinessLevel: String = "",
+    val foodPreference: String = "",
+    val smokingDrinking: String = ""
 ) {
     constructor() : this("")
 }

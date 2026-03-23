@@ -2,12 +2,18 @@ package com.example.staybuddy
 
 import android.app.Application
 import android.content.Context
+import com.example.staybuddy.data.manager.RemoteConfigManager
 import com.example.staybuddy.notifications.NotificationHelper
 import dagger.hilt.android.HiltAndroidApp
 import org.osmdroid.config.Configuration
+import javax.inject.Inject
 
 @HiltAndroidApp
 class StayBuddyApp : Application() {
+
+    @Inject
+    lateinit var remoteConfigManager: RemoteConfigManager
+
     override fun onCreate() {
         android.util.Log.d("StayBuddyApp", "onCreate: PRE-INITIALIZATION (Entry Point)")
         
@@ -24,6 +30,10 @@ class StayBuddyApp : Application() {
             // Initialize notification channels as early as possible
             NotificationHelper.createNotificationChannels(this)
             android.util.Log.d("StayBuddyApp", "onCreate: Notification channels created")
+
+            // Initialize Remote Config for feature flags and update checks
+            remoteConfigManager.init()
+            android.util.Log.d("StayBuddyApp", "onCreate: Remote Config initialized")
             
             // Initialize Osmdroid configuration
             Configuration.getInstance().load(

@@ -25,7 +25,15 @@ data class PgListing(
     val ownerName: String = "",
     val ownerProfileImage: String = "",
     val ownerPhone: String = "",
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+    // Trust & verification hooks
+    val isVerified: Boolean = false,
+    val reportCount: Int = 0,
+    // Monetization hooks (future use)
+    val isPremium: Boolean = false,
+    val boostExpiresAt: Long? = null,
+    val featuredUntil: Long? = null,
+    val viewCount: Int = 0
 ) {
     constructor() : this("")
 }

@@ -11,5 +11,9 @@ data class User(
     val college: String = "",
     val profileImage: String = "",
     val fcmToken: String = "",
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+    // Premium & verification hooks (future use)
+    val isPremiumUser: Boolean = false,
+    val subscriptionTier: String = "free",
+    val isOwnerVerified: Boolean = false
 )

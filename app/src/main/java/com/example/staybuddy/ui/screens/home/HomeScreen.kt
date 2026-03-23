@@ -42,6 +42,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.foundation.BorderStroke
 import com.google.android.gms.location.LocationServices
 import com.example.staybuddy.ui.components.PgListingCard
+import com.example.staybuddy.ui.components.UpdateDialog
+import com.example.staybuddy.data.manager.UpdateInfo
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -56,12 +58,28 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val updateInfo by viewModel.updateInfo.collectAsStateWithLifecycle()
     val pullRefreshState = rememberPullToRefreshState()
     val coroutineScope = rememberCoroutineScope()
     var isRefreshing by remember { mutableStateOf(false) }
     var showLocationSheet by remember { mutableStateOf(false) }
+    var updateDismissed by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+
+    // Show update dialog
+    if (updateInfo.isUpdateAvailable && (!updateDismissed || updateInfo.isForceUpdate)) {
+        UpdateDialog(
+            latestVersion = updateInfo.latestVersion,
+            message = updateInfo.message,
+            isForceUpdate = updateInfo.isForceUpdate,
+            onUpdate = { viewModel.onUpdateClicked() },
+            onDismiss = {
+                updateDismissed = true
+                viewModel.dismissUpdate()
+            }
+        )
+    }
 
     val onRefresh: () -> Unit = {
         isRefreshing = true
