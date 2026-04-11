@@ -107,6 +107,7 @@ dependencies {
 
     // Maps (osmdroid — free OpenStreetMap, no API key needed)
     implementation(libs.osmdroid.android)
+    implementation("com.github.MKergall:osmbonuspack:6.9.0")
     implementation(libs.play.services.location)
 
     // Hilt DI
@@ -124,6 +125,11 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.play.services)
 
+    // Networking
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.okhttp.logging)
+
     // DataStore
     implementation(libs.datastore.preferences)
 
@@ -134,6 +140,11 @@ dependencies {
     // Core & AppCompat
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)
+
+    // Room
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
 
     // Testing
     testImplementation(libs.junit)

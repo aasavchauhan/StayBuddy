@@ -12,8 +12,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.RadioButton
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 
@@ -37,6 +40,9 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 
 import com.example.staybuddy.ui.components.OsmMapView
+import com.example.staybuddy.ui.components.VerifiedBadge
+import com.example.staybuddy.ui.components.FreshnessTag
+import com.example.staybuddy.ui.components.ListingCardSkeleton
 import com.example.staybuddy.util.WhatsAppUtils
 import org.osmdroid.util.GeoPoint
 
@@ -52,14 +58,41 @@ fun ListingDetailScreen(
     val context = LocalContext.current
     val scrollState = rememberScrollState()
     var showInquiryDialog by remember { mutableStateOf(false) }
+    var showReportSheet by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
     
     // Determine top bar transparency based on scroll
     val topBarAlpha = (scrollState.value / 300f).coerceIn(0f, 1f)
 
+    // Report feedback
+    LaunchedEffect(uiState.isReportSent) {
+        if (uiState.isReportSent) {
+            snackbarHostState.showSnackbar("Report submitted. Thank you for helping keep StayBuddy safe.")
+        }
+    }
+    LaunchedEffect(uiState.reportError) {
+        uiState.reportError?.let {
+            snackbarHostState.showSnackbar(it)
+        }
+    }
+
     // Removed InquiryDialog as it's replaced by WhatsApp redirection
+
+    // Report bottom sheet
+    if (showReportSheet) {
+        ReportBottomSheet(
+            hasAlreadyReported = uiState.hasAlreadyReported,
+            onDismiss = { showReportSheet = false },
+            onReport = { reason ->
+                viewModel.reportListing(reason)
+                showReportSheet = false
+            }
+        )
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             if (uiState.listing != null) {
                 Surface(
@@ -131,8 +164,13 @@ fun ListingDetailScreen(
     ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
             if (uiState.isLoading) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+                Column(
+                    modifier = Modifier.fillMaxSize().padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Spacer(modifier = Modifier.height(80.dp))
+                    ListingCardSkeleton()
+                    ListingCardSkeleton()
                 }
             } else if (uiState.error != null) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -404,7 +442,7 @@ fun ListingDetailScreen(
                                     }
                                 }
                                 Spacer(modifier = Modifier.width(16.dp))
-                                Column(modifier = Modifier.weight(1f)) {
+                        Column(modifier = Modifier.weight(1f)) {
                                     Text(
                                         text = listing.ownerName.ifEmpty { "Property Owner" },
                                         style = MaterialTheme.typography.labelLarge,
@@ -412,12 +450,14 @@ fun ListingDetailScreen(
                                         fontWeight = FontWeight.Bold
                                     )
                                     Text(
-                                        text = "Verified Property Owner",
+                                        text = if (listing.isVerified) "Verified Property Owner" else "Property Owner",
                                         style = MaterialTheme.typography.titleMedium,
                                         fontWeight = FontWeight.ExtraBold
                                     )
                                 }
-                                Icon(Icons.Default.CheckCircle, contentDescription = "Verified", tint = Color(0xFF4CAF50), modifier = Modifier.size(20.dp))
+                                if (listing.isVerified) {
+                                    VerifiedBadge(size = 22.dp)
+                                }
                             }
                         }
                         
@@ -475,6 +515,26 @@ fun ListingDetailScreen(
                     }
                     
                     Spacer(Modifier.weight(1f))
+
+                    // Report button
+                    IconButton(
+                        onClick = { showReportSheet = true },
+                        modifier = Modifier
+                            .size(44.dp)
+                            .background(
+                                Color.Black.copy(alpha = (0.4f * (1 - topBarAlpha)).coerceAtLeast(0f)),
+                                CircleShape
+                            )
+                    ) {
+                        Icon(
+                            Icons.Default.Flag,
+                            contentDescription = "Report",
+                            tint = if (topBarAlpha > 0.5f) MaterialTheme.colorScheme.onSurface else Color.White,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+
+                    Spacer(Modifier.width(4.dp))
                     
                     IconButton(
                         onClick = viewModel::toggleFavorite,
@@ -643,3 +703,108 @@ fun AmenityChip(text: String) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ReportBottomSheet(
+    hasAlreadyReported: Boolean,
+    onDismiss: () -> Unit,
+    onReport: (String) -> Unit
+) {
+    val reportReasons = listOf(
+        "Fake listing",
+        "Outdated / no longer available",
+        "Wrong price or details",
+        "Duplicate listing",
+        "Scam / Fraud"
+    )
+    var selectedReason by remember { mutableStateOf<String?>(null) }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 16.dp)
+        ) {
+            Text(
+                text = "Report this listing",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Black
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            if (hasAlreadyReported) {
+                Text(
+                    text = "You've already reported this listing. Our team is reviewing it.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+            } else {
+                Text(
+                    text = "Why are you reporting this listing?",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                reportReasons.forEach { reason ->
+                    val isSelected = selectedReason == reason
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        color = if (isSelected) MaterialTheme.colorScheme.primaryContainer
+                               else MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp),
+                        border = if (isSelected) BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
+                                 else BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+                        onClick = { selectedReason = reason }
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = isSelected,
+                                onClick = { selectedReason = reason },
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(Modifier.width(12.dp))
+                            Text(
+                                text = reason,
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Button(
+                    onClick = { selectedReason?.let { onReport(it) } },
+                    enabled = selectedReason != null,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError
+                    )
+                ) {
+                    Icon(Icons.Default.Flag, contentDescription = null, modifier = Modifier.size(20.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text("Submit Report", fontWeight = FontWeight.Bold)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+    }
+}

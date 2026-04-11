@@ -1,0 +1,72 @@
+﻿> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:generateDebugBuildConfig UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:processDebugGoogleServices UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+> Task :app:kspDebugKotlin
+> Task :app:compileDebugKotlin
+.\gradlew.bat : e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/data/mana
+ger/UpdateChecker.kt:7:30 Unresolved reference 'BuildConfig'.
+At line:1 char:1
++ .\gradlew.bat compileDebugKotlin 2>&1 | Out-File -Encoding utf8 build ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (e: file:///C:/U... 'BuildConfig'.:String) [], RemoteExc 
+   eption
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/data/manager/UpdateChecke
+r.kt:79:42 Unresolved reference 'BuildConfig'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/data/manager/UpdateChecke
+r.kt:83:39 Unresolved reference 'BuildConfig'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/notifications/Notificatio
+nHelper.kt:9:30 Unresolved reference 'R'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/notifications/Notificatio
+nHelper.kt:49:27 Unresolved reference 'R'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/notifications/Notificatio
+nHelper.kt:50:14 Unresolved reference 'setContentTitle'.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/roommate/Compa
+tibilityQuizScreen.kt:42:13 This material API is experimental and is likely to change or to be 
+removed in the future.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/roommate/Compa
+tibilityQuizScreen.kt:55:26 This material API is experimental and is likely to change or to be 
+removed in the future.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/roommate/Compa
+tibilityQuizScreen.kt:55:44 This material API is experimental and is likely to change or to be 
+removed in the future.
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/roommate/Roomm
+ateListScreen.kt:274:40 Unresolved reference. None of the following candidates is applicable because 
+of a receiver type mismatch:
+val Icons.AutoMirrored.Filled.ArrowForward: ImageVector
+
+> Task :app:compileDebugKotlin FAILED
+w: Detected multiple Kotlin daemon sessions at 
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileDebugKotlin'.
+> A failure occurred while executing 
+org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 1m 55s
+17 actionable tasks: 2 executed, 15 up-to-date

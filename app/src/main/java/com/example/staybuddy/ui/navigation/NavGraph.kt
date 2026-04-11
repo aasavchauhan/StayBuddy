@@ -24,6 +24,7 @@ import com.example.staybuddy.ui.screens.roommate.AddRoommatePostScreen
 import com.example.staybuddy.ui.screens.roommate.RoommateListScreen
 import com.example.staybuddy.ui.screens.search.SearchScreen
 import com.example.staybuddy.ui.screens.splash.SplashScreen
+import com.example.staybuddy.ui.screens.profile.CompatibilityQuizScreen
 
 import androidx.compose.ui.Modifier
 
@@ -152,7 +153,8 @@ fun NavGraph(
             RoommateListScreen(
                 onNavigateToAddPost = { navController.navigate(Screen.AddRoommatePost.createRoute(null)) },
                 onNavigateToEditPost = { postId -> navController.navigate(Screen.AddRoommatePost.createRoute(postId)) },
-                onNavigateToChat = { chatId -> navController.navigate(Screen.Chat(chatId).route) }
+                onNavigateToChat = { chatId -> navController.navigate(Screen.Chat(chatId).route) },
+                onNavigateToQuiz = { navController.navigate(Screen.CompatibilityQuiz.route) }
             )
         }
 
@@ -228,6 +230,7 @@ fun NavGraph(
                 onNavigateToOwnerDashboard = { navController.navigate(Screen.OwnerDashboard.route) },
                 onNavigateToChatList = { navController.navigate(Screen.ChatList.route) },
                 onNavigateToEditProfile = { navController.navigate(Screen.EditProfile.route) },
+                onNavigateToCompatibilityQuiz = { navController.navigate(Screen.CompatibilityQuiz.route) },
                 onLogout = {
                     navController.navigate(Screen.Login.route) {
                         popUpTo(0) { inclusive = true }
@@ -249,6 +252,13 @@ fun NavGraph(
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }
                 }
+            )
+        }
+
+        composable(Screen.CompatibilityQuiz.route) {
+            CompatibilityQuizScreen(
+                onBack = { navController.popBackStack() },
+                onComplete = { navController.popBackStack() }
             )
         }
     }

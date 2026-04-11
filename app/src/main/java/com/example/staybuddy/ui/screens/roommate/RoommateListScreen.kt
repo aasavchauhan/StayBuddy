@@ -15,6 +15,10 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.material3.*
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -52,6 +56,7 @@ fun RoommateListScreen(
     onNavigateToAddPost: () -> Unit,
     onNavigateToEditPost: (String) -> Unit,
     onNavigateToChat: (String) -> Unit,
+    onNavigateToQuiz: () -> Unit,
     viewModel: RoommateListViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -175,10 +180,19 @@ fun RoommateListScreen(
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
+                        // Compatibility Quiz Banner
+                        if (uiState.currentUserProfile != null && uiState.currentUserProfile!!.quizResults.isEmpty()) {
+                            item {
+                                CompatibilityQuizBanner(onNavigateToQuiz)
+                            }
+                        }
+
                         items(uiState.filteredPosts, key = { it.postId }) { post ->
+                            val matchScore = uiState.matchScores[post.userId]
                             RoommatePostCard(
                                 post = post,
                                 isOwnedByMe = post.userId == uiState.currentUserId,
+                                matchScore = matchScore,
                                 onEditClick = { onNavigateToEditPost(post.postId) }
                             )
                         }
@@ -194,8 +208,72 @@ fun RoommateListScreen(
                 uiState = uiState,
                 onMaxBudgetChange = viewModel::onMaxBudgetChanged,
                 onGenderPreferenceChange = viewModel::onGenderPreferenceChanged,
+                onSortByMatchChange = viewModel::onSortByMatchChanged,
                 onApply = { showFilterSheet = false }
             )
+        }
+    }
+}
+
+@Composable
+fun CompatibilityQuizBanner(onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 16.dp)
+            .clickable { onClick() },
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f)
+        )
+    ) {
+        Box(
+            modifier = Modifier
+                .background(
+                    Brush.horizontalGradient(
+                        listOf(
+                            MaterialTheme.colorScheme.primaryContainer,
+                            MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)
+                        )
+                    )
+                )
+                .padding(24.dp)
+        ) {
+            Column {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Filled.CheckCircle,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(28.dp)
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = "Unlock Compatibility Scores",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Black,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Take a quick 2-minute lifestyle quiz to see how well you match with potential roommates.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = onClick,
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    Text("Start Quiz", fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Icon(Icons.Default.ArrowForward, contentDescription = null, modifier = Modifier.size(16.dp))
+                }
+            }
         }
     }
 }
@@ -205,6 +283,7 @@ fun RoommateFilterSheetContent(
     uiState: RoommateListUiState,
     onMaxBudgetChange: (Float) -> Unit,
     onGenderPreferenceChange: (String) -> Unit,
+    onSortByMatchChange: (Boolean) -> Unit,
     onApply: () -> Unit
 ) {
     Column(
@@ -258,6 +337,41 @@ fun RoommateFilterSheetContent(
             }
         }
 
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Sort by Compatibility
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column {
+                Text(
+                    text = "Sort by Compatibility",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "Put best matches at the top",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Switch(
+                checked = uiState.sortByMatch,
+                onCheckedChange = onSortByMatchChange,
+                thumbContent = if (uiState.sortByMatch) {
+                    {
+                        Icon(
+                            imageVector = Icons.Filled.Check,
+                            contentDescription = null,
+                            modifier = Modifier.size(SwitchDefaults.IconSize),
+                        )
+                    }
+                } else null
+            )
+        }
+
         Spacer(modifier = Modifier.height(40.dp))
 
         Button(
@@ -276,6 +390,7 @@ fun RoommateFilterSheetContent(
 fun RoommatePostCard(
     post: RoommatePost,
     isOwnedByMe: Boolean,
+    matchScore: Int? = null,
     onEditClick: () -> Unit
 ) {
     val context = LocalContext.current
@@ -358,12 +473,35 @@ fun RoommatePostCard(
                         fontWeight = FontWeight.Black,
                         color = MaterialTheme.colorScheme.primary
                     )
-                    Text(
-                        text = "per month",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                        fontWeight = FontWeight.Bold
-                    )
+                    if (matchScore != null && !isOwnedByMe) {
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = when {
+                                matchScore >= 80 -> Color(0xFF4CAF50).copy(alpha = 0.15f)
+                                matchScore >= 50 -> Color(0xFFFF9800).copy(alpha = 0.15f)
+                                else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f)
+                            },
+                        ) {
+                            Text(
+                                text = "$matchScore% Match",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Black,
+                                color = when {
+                                    matchScore >= 80 -> Color(0xFF2E7D32)
+                                    matchScore >= 50 -> Color(0xFFEF6C00)
+                                    else -> MaterialTheme.colorScheme.onSurfaceVariant
+                                },
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
+                    } else {
+                        Text(
+                            text = "per month",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
             

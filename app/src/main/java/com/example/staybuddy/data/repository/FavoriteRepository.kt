@@ -4,39 +4,58 @@ import com.example.staybuddy.utils.Constants
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
+import com.example.staybuddy.data.local.FavoriteDao
+import com.example.staybuddy.data.local.FavoriteEntity
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.flowOf
 
 @Singleton
 class FavoriteRepository @Inject constructor(
     private val firestore: FirebaseFirestore,
-    private val auth: FirebaseAuth
+    private val auth: FirebaseAuth,
+    private val favoriteDao: FavoriteDao
 ) {
-    fun getFavoriteListingIds(): Flow<List<String>> = callbackFlow {
-        val userId = auth.currentUser?.uid ?: run {
-            trySend(emptyList())
-            close()
-            return@callbackFlow
-        }
-        val listener = firestore.collection(Constants.FAVORITES_COLLECTION)
-            .whereEqualTo("userId", userId)
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    close(error)
-                    return@addSnapshotListener
-                }
-                val ids = snapshot?.documents?.mapNotNull { it.getString("listingId") } ?: emptyList()
-                trySend(ids)
+    private val repositoryScope = CoroutineScope(Dispatchers.IO)
+    fun getFavoriteListingIds(): Flow<List<String>> {
+        val userId = auth.currentUser?.uid ?: return flowOf(emptyList())
+        
+        // Start sync in background
+        repositoryScope.launch {
+            try {
+                firestore.collection(Constants.FAVORITES_COLLECTION)
+                    .whereEqualTo("userId", userId)
+                    .addSnapshotListener { snapshot, error ->
+                        if (error == null && snapshot != null) {
+                            val ids = snapshot.documents.mapNotNull { it.getString("listingId") }
+                            repositoryScope.launch {
+                                favoriteDao.clearFavorites(userId)
+                                ids.forEach { id ->
+                                    favoriteDao.insertFavorite(FavoriteEntity(id, userId))
+                                }
+                            }
+                        }
+                    }
+            } catch (e: Exception) {
+                // Ignore sync errors
             }
-        awaitClose { listener.remove() }
+        }
+
+        return favoriteDao.getFavoriteIds(userId)
     }
 
     suspend fun addFavorite(listingId: String): Result<Unit> {
         return try {
             val userId = auth.currentUser?.uid ?: throw Exception("Not logged in")
+            
+            // Optimistic local update
+            favoriteDao.insertFavorite(FavoriteEntity(listingId, userId))
+            
             val doc = hashMapOf(
                 "userId" to userId,
                 "listingId" to listingId,
@@ -54,6 +73,10 @@ class FavoriteRepository @Inject constructor(
     suspend fun removeFavorite(listingId: String): Result<Unit> {
         return try {
             val userId = auth.currentUser?.uid ?: throw Exception("Not logged in")
+            
+            // Local update
+            favoriteDao.deleteFavorite(listingId, userId)
+            
             val docs = firestore.collection(Constants.FAVORITES_COLLECTION)
                 .whereEqualTo("userId", userId)
                 .whereEqualTo("listingId", listingId)

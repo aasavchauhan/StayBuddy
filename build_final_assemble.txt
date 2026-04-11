@@ -1,0 +1,117 @@
+﻿Starting a Gradle Daemon, 1 busy and 5 stopped Daemons could not be reused, use --status for details
+Daemon JVM discovery is an incubating feature.
+> Task :app:clean
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:generateDebugBuildConfig
+> Task :app:generateDebugResValues
+> Task :app:processDebugGoogleServices
+> Task :app:checkDebugAarMetadata
+> Task :app:mapDebugSourceSetPaths
+> Task :app:generateDebugResources
+> Task :app:packageDebugResources
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug
+> Task :app:parseDebugLocalResources
+> Task :app:mergeDebugResources
+> Task :app:processDebugMainManifest
+> Task :app:processDebugManifest
+> Task :app:mergeDebugShaders
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:javaPreCompileDebug
+> Task :app:mergeDebugAssets
+> Task :app:desugarDebugFileDependencies
+> Task :app:compressDebugAssets
+> Task :app:mergeDebugJniLibFolders
+> Task :app:validateSigningDebug
+> Task :app:writeDebugAppMetadata
+> Task :app:mergeDebugNativeLibs
+> Task :app:writeDebugSigningConfigVersions
+> Task :app:processDebugManifestForPackage
+> Task :app:checkDebugDuplicateClasses
+
+> Task :app:stripDebugDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so, libdatastore_shared_counter.so, libimagepipeline.so, libnative-filters.so, libnative-imagetranscoder.so.
+
+> Task :app:mergeLibDexDebug
+> Task :app:processDebugResources
+> Task :app:mergeExtDexDebug
+> Task :app:kspDebugKotlin
+
+> Task :app:compileDebugKotlin
+.\gradlew.bat : e: file:///C:/User
+s/Aasav/StayBuddy/app/src/main/jav
+a/com/example/staybuddy/ui/screens
+/roommate/CompatibilityQuizScreen.
+kt:42:13 This material API is 
+experimental and is likely to 
+change or to be removed in the 
+future.
+At line:1 char:1
++ .\gradlew.bat clean 
+:app:assembleDebug -x lint 2>&1 | 
+Out-File -Encod ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : Not 
+   Specified: (e: file:///C:/U..  
+  . in the future.:String) [],    
+ RemoteException
+    + FullyQualifiedErrorId : Nat 
+   iveCommandError
+ 
+e: file:///C:/Users/Aasav/StayBudd
+y/app/src/main/java/com/example/st
+aybuddy/ui/screens/roommate/Compat
+ibilityQuizScreen.kt:55:26 This 
+material API is experimental and 
+is likely to change or to be 
+removed in the future.
+e: file:///C:/Users/Aasav/StayBudd
+y/app/src/main/java/com/example/st
+aybuddy/ui/screens/roommate/Compat
+ibilityQuizScreen.kt:55:44 This 
+material API is experimental and 
+is likely to change or to be 
+removed in the future.
+e: file:///C:/Users/Aasav/StayBudd
+y/app/src/main/java/com/example/st
+aybuddy/ui/screens/roommate/Roomma
+teListScreen.kt:274:40 Unresolved 
+reference. None of the following 
+candidates is applicable because 
+of a receiver type mismatch:
+val Icons.AutoMirrored.Filled.Arro
+wForward: ImageVector
+
+> Task :app:compileDebugKotlin FAILED
+
+FAILURE: Build failed with an 
+exception.
+
+* What went wrong:
+Execution failed for task 
+':app:compileDebugKotlin'.
+> A failure occurred while 
+executing org.jetbrains.kotlin.com
+pilerRunner.GradleCompilerRunnerWi
+thWorkers$GradleKotlinCompilerWork
+Action
+   > Compilation error. See log 
+for more details
+
+* Try:
+> Run with --stacktrace option to 
+get the stack trace.
+> Run with --info or --debug 
+option to get more log output.
+> Run with --scan to get full 
+insights.
+> Get more help at 
+https://help.gradle.org.
+
+BUILD FAILED in 1m 25s
+32 actionable tasks: 32 executed

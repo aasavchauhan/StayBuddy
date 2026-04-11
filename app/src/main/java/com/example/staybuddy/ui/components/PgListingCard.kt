@@ -35,6 +35,8 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.staybuddy.data.model.PgListing
+import com.example.staybuddy.ui.components.FreshnessTag
+import com.example.staybuddy.ui.components.VerifiedBadge
 
 @Composable
 fun PgListingCard(
@@ -149,23 +151,30 @@ fun PgListingCard(
                     }
                 }
                 
-                // Main Badges (Gender)
-                if (listing.genderAllowed.isNotBlank()) {
-                    Surface(
-                        modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(12.dp),
-                        shape = RoundedCornerShape(8.dp),
-                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.9f),
-                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                    ) {
-                        Text(
-                            text = listing.genderAllowed.uppercase(),
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Black,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                            letterSpacing = 1.sp
-                        )
+                // Main Badges (Gender + Verified)
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    if (listing.genderAllowed.isNotBlank()) {
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.9f),
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        ) {
+                            Text(
+                                text = listing.genderAllowed.uppercase(),
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Black,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                letterSpacing = 1.sp
+                            )
+                        }
+                    }
+                    if (listing.isVerified) {
+                        VerifiedBadge(showLabel = true)
                     }
                 }
 
@@ -257,22 +266,25 @@ fun PgListingCard(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Distance Tag
-                    Surface(
-                        shape = RoundedCornerShape(6.dp),
-                        color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f),
-                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                    // Distance + Freshness Tags
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Surface(
+                            shape = RoundedCornerShape(6.dp),
+                            color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f),
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                         ) {
-                            Text(
-                                text = if (distanceKm != null) "%.1f km away".format(distanceKm) else "Near you",
-                                style = MaterialTheme.typography.labelMedium,
-                                fontWeight = FontWeight.SemiBold
-                            )
+                            Row(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = if (distanceKm != null) "%.1f km away".format(distanceKm) else "Near you",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
                         }
+                        FreshnessTag(createdAt = listing.createdAt)
                     }
                     
                     // Rating Tag

@@ -48,6 +48,7 @@ fun ProfileScreen(
     onNavigateToOwnerDashboard: () -> Unit,
     onNavigateToChatList: () -> Unit,
     onNavigateToEditProfile: () -> Unit,
+    onNavigateToCompatibilityQuiz: () -> Unit,
     onLogout: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
@@ -167,6 +168,16 @@ fun ProfileScreen(
                                         icon = Icons.Default.Settings,
                                         iconColor = Color(0xFF64748B),
                                         onClick = onNavigateToEditProfile
+                                    )
+
+                                    HorizontalDivider(modifier = Modifier.padding(horizontal = 20.dp), thickness = 0.5.dp, color = Color.LightGray.copy(alpha = 0.3f))
+
+                                    ProfileOptionItem(
+                                        title = "Compatibility Quiz",
+                                        subtitle = "Find your perfect roommate match",
+                                        icon = Icons.Default.FactCheck,
+                                        iconColor = Color(0xFF10B981),
+                                        onClick = onNavigateToCompatibilityQuiz
                                     )
                                 }
                             }

@@ -40,3 +40,7 @@ val BackgroundDark = Color(0xFF0F172A)
 val OnSurfaceDark = Color(0xFFF9FAFB)
 val OnSurfaceVariantDark = Color(0xFF9CA3AF)
 val OutlineDark = Color(0xFF374151)
+
+// Additional Premium Colors
+val RoyalBlue = Color(0xFF2563EB)
+val SoftOffWhite = Color(0xFFF8FAFC)

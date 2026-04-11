@@ -28,6 +28,7 @@ sealed class Screen(val route: String) {
     data object Profile : Screen("profile")
     data object EditProfile : Screen("edit_profile")
     data object FinishRegistration : Screen("finish_registration")
+    data object CompatibilityQuiz : Screen("compatibility_quiz")
 
     data class ListingDetail(val listingId: String = "{listingId}") : Screen("listing_detail/$listingId") {
         companion object {

@@ -15,6 +15,7 @@ import javax.inject.Inject
 import com.example.staybuddy.data.model.Inquiry
 import com.example.staybuddy.data.repository.FavoriteRepository
 import com.example.staybuddy.data.repository.InquiryRepository
+import com.example.staybuddy.data.repository.ReportRepository
 import com.google.firebase.auth.FirebaseAuth
 
 data class ListingDetailUiState(
@@ -22,7 +23,10 @@ data class ListingDetailUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
     val isFavorite: Boolean = false,
-    val isInquirySent: Boolean = false
+    val isInquirySent: Boolean = false,
+    val isReportSent: Boolean = false,
+    val reportError: String? = null,
+    val hasAlreadyReported: Boolean = false
 )
 
 @HiltViewModel
@@ -30,6 +34,7 @@ class ListingDetailViewModel @Inject constructor(
     private val listingRepository: ListingRepository,
     private val favoriteRepository: FavoriteRepository,
     private val inquiryRepository: InquiryRepository,
+    private val reportRepository: ReportRepository,
     private val auth: FirebaseAuth,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -44,6 +49,7 @@ class ListingDetailViewModel @Inject constructor(
     init {
         loadListing()
         observeFavoriteStatus()
+        checkReportStatus()
     }
 
     private fun loadListing() {
@@ -113,6 +119,30 @@ class ListingDetailViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(isLoading = false, isInquirySent = true, error = null)
             }.onFailure { e ->
                 _uiState.value = _uiState.value.copy(isLoading = false, error = e.message ?: "Failed to send inquiry")
+            }
+        }
+    }
+
+    private fun checkReportStatus() {
+        viewModelScope.launch {
+            val reported = reportRepository.hasUserReported(listingId)
+            _uiState.value = _uiState.value.copy(hasAlreadyReported = reported)
+        }
+    }
+
+    fun reportListing(reason: String) {
+        viewModelScope.launch {
+            val result = reportRepository.reportListing(listingId, reason)
+            result.onSuccess {
+                _uiState.value = _uiState.value.copy(
+                    isReportSent = true,
+                    hasAlreadyReported = true,
+                    reportError = null
+                )
+            }.onFailure { e ->
+                _uiState.value = _uiState.value.copy(
+                    reportError = e.message ?: "Failed to submit report"
+                )
             }
         }
     }

@@ -2,6 +2,8 @@ package com.example.staybuddy.ui.screens.map
 
 import android.Manifest
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -42,23 +44,7 @@ fun MapViewScreen(
     }
 
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    if (!locationPermissionState.status.isGranted) {
-                        locationPermissionState.launchPermissionRequest()
-                    }
-                    // The Map component itself handles showing location if enabled, 
-                    // but we can pass a specific intent here if we integrated FusedLocationProviderClient.
-                    // For now, OsmMapView uses GpsMyLocationProvider implicitly when we enable it in the component.
-                },
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                modifier = Modifier.padding(bottom = if (uiState.selectedListing != null) 200.dp else 16.dp)
-            ) {
-                Icon(Icons.Default.MyLocation, contentDescription = "My Location")
-            }
-        }
+        modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize()) {
             // Full Screen Map
@@ -66,6 +52,7 @@ fun MapViewScreen(
                 modifier = Modifier.fillMaxSize(),
                 listings = uiState.listings,
                 currentLocation = uiState.userLocation, // Pass user location if we tracked it in VM 
+                selectedListing = uiState.selectedListing,
                 onMarkerClick = { listing ->
                     viewModel.selectListing(listing)
                 }
@@ -95,48 +82,59 @@ fun MapViewScreen(
                     )
                 }
             }
-            
-            // Bottom Sheet for selected listing
-            if (uiState.selectedListing != null) {
-                ModalBottomSheet(
-                    onDismissRequest = { viewModel.selectListing(null) },
-                    containerColor = MaterialTheme.colorScheme.surface
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                            .padding(bottom = 32.dp)
-                    ) {
-                        Text(
-                            text = "Selected Listing",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(bottom = 16.dp)
-                        )
-                        
-                        PgListingCard(
-                            listing = uiState.selectedListing!!,
-                            onCardClick = { 
-                                onNavigateToListingDetail(uiState.selectedListing!!.listingId)
-                                viewModel.selectListing(null)
-                            },
-                            onFavoriteClick = { /* Handle favorite */ }
-                        )
-                        
-                        Spacer(modifier = Modifier.height(16.dp))
-                        
-                        Button(
-                            onClick = { 
-                                onNavigateToListingDetail(uiState.selectedListing!!.listingId)
-                                viewModel.selectListing(null)
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("View Details")
+
+            if (uiState.listings.isNotEmpty()) {
+                val pagerState = rememberPagerState(pageCount = { uiState.listings.size })
+
+                LaunchedEffect(uiState.selectedListing, uiState.listings) {
+                    val selectedId = uiState.selectedListing?.listingId
+                    if (selectedId != null) {
+                        val index = uiState.listings.indexOfFirst { it.listingId == selectedId }
+                        if (index != -1 && pagerState.currentPage != index) {
+                            pagerState.animateScrollToPage(index)
                         }
                     }
                 }
+
+                LaunchedEffect(pagerState.currentPage) {
+                    if (uiState.listings.isNotEmpty() && pagerState.currentPage < uiState.listings.size) {
+                        val currentListing = uiState.listings[pagerState.currentPage]
+                        if (uiState.selectedListing?.listingId != currentListing.listingId) {
+                            viewModel.selectListing(currentListing)
+                        }
+                    }
+                }
+
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = paddingValues.calculateBottomPadding() + 16.dp),
+                    contentPadding = PaddingValues(horizontal = 32.dp),
+                    pageSpacing = 16.dp
+                ) { page ->
+                    val listing = uiState.listings[page]
+                    PgListingCard(
+                        listing = listing,
+                        onCardClick = { onNavigateToListingDetail(listing.listingId) },
+                        onFavoriteClick = { /* Handle favorite */ }
+                    )
+                }
+            }
+
+            // Floating Action Button
+            FloatingActionButton(
+                onClick = {
+                    if (!locationPermissionState.status.isGranted) {
+                        locationPermissionState.launchPermissionRequest()
+                    }
+                },
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = 16.dp, bottom = if (uiState.listings.isNotEmpty()) 320.dp else 16.dp)
+            ) {
+                Icon(Icons.Default.MyLocation, contentDescription = "My Location")
             }
         }
     }

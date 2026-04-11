@@ -278,6 +278,26 @@ fun AddRoommatePostScreen(
                             viewModel.updatePreference("Pets", if (checked) "No Pets Allowed" else "")
                         }
                     )
+                    
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                    
+                    Column(modifier = Modifier.padding(vertical = 8.dp)) {
+                        Text(text = "Guests & Visitors", style = MaterialTheme.typography.bodyLarge)
+                        Text(
+                            text = "How do you feel about guests/visitors?",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                        OutlinedTextField(
+                            value = uiState.guestsVisitors,
+                            onValueChange = { viewModel.updateField("guestsVisitors", it) },
+                            placeholder = { Text("e.g. Occasional guests allowed, No overnight stay...") },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            textStyle = MaterialTheme.typography.bodyMedium
+                        )
+                    }
                 }
             }
             

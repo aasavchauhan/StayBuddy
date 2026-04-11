@@ -1,0 +1,80 @@
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:generateDebugBuildConfig UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:processDebugGoogleServices UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:mergeDebugShaders UP-TO-DATE
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets UP-TO-DATE
+> Task :app:compressDebugAssets UP-TO-DATE
+> Task :app:desugarDebugFileDependencies UP-TO-DATE
+> Task :app:checkDebugDuplicateClasses UP-TO-DATE
+> Task :app:mergeExtDexDebug UP-TO-DATE
+> Task :app:mergeLibDexDebug UP-TO-DATE
+> Task :app:mergeDebugJniLibFolders UP-TO-DATE
+> Task :app:mergeDebugNativeLibs UP-TO-DATE
+> Task :app:stripDebugDebugSymbols UP-TO-DATE
+> Task :app:validateSigningDebug UP-TO-DATE
+> Task :app:writeDebugAppMetadata UP-TO-DATE
+> Task :app:writeDebugSigningConfigVersions UP-TO-DATE
+
+> Task :app:kspDebugKotlin FAILED
+e: [ksp] C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/search/SearchScreen.kt: (196, 19): Function declaration must have a name
+e: Error occurred in KSP, check log for detail
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/data/manager/SearchHistoryManager.kt:1:1 Expecting a top level declaration
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/data/manager/SearchHistoryManager.kt:1:2 Expecting a top level declaration
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/data/manager/SearchHistoryManager.kt:1:3 Expecting a top level declaration
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/data/manager/SearchHistoryManager.kt:2:1 Expecting a top level declaration
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/data/manager/SearchHistoryManager.kt:2:9 Expecting a top level declaration
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/data/manager/SearchHistoryManager.kt:2:12 Expecting a top level declaration
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/data/manager/SearchHistoryManager.kt:2:13 Expecting a top level declaration
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/data/manager/SearchHistoryManager.kt:2:20 Expecting a top level declaration
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/data/manager/SearchHistoryManager.kt:2:21 Expecting a top level declaration
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/data/manager/SearchHistoryManager.kt:2:30 Expecting a top level declaration
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/data/manager/SearchHistoryManager.kt:2:35 Expecting a top level declaration
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/data/manager/SearchHistoryManager.kt:2:36 Expecting a top level declaration
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/data/manager/SearchHistoryManager.kt:2:43 imports are only allowed in the beginning of file
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/data/manager/SearchHistoryManager.kt:34:1 Expecting a top level declaration
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/data/manager/SearchHistoryManager.kt:34:2 Expecting a top level declaration
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/data/manager/SearchHistoryManager.kt:34:3 Expecting a top level declaration
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/search/SearchScreen.kt:193:18 Expecting ')'
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/search/SearchScreen.kt:195:9 Expecting a top level declaration
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/search/SearchScreen.kt:195:10 Expecting a top level declaration
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/search/SearchScreen.kt:196:9 Expecting a top level declaration
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/search/SearchScreen.kt:196:17 Expecting a top level declaration
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/search/SearchScreen.kt:196:19 Expecting a top level declaration
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/search/SearchScreen.kt:196:29 Unexpected tokens (use ';' to separate expressions on the same line)
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/search/SearchScreen.kt:351:1 Expecting a top level declaration
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/search/SearchScreen.kt:352:1 Expecting a top level declaration
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:kspDebugKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 2s
+30 actionable tasks: 1 executed, 29 up-to-date

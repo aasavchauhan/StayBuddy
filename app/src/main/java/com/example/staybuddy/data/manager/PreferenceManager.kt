@@ -6,7 +6,9 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.example.staybuddy.utils.Constants
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -72,6 +74,65 @@ class PreferenceManager @Inject constructor(
         context.dataStore.edit { preferences ->
             preferences[doublePreferencesKey(Constants.KEY_LATITUDE)] = lat
             preferences[doublePreferencesKey(Constants.KEY_LONGITUDE)] = lon
+        }
+    }
+
+    // Search Filters
+    val filterPriceRange: Flow<Pair<Float, Float>> = context.dataStore.data
+        .map { preferences ->
+            val min = preferences[floatPreferencesKey(Constants.KEY_FILTER_PRICE_MIN)] ?: 500f
+            val max = preferences[floatPreferencesKey(Constants.KEY_FILTER_PRICE_MAX)] ?: 30000f
+            Pair(min, max)
+        }
+
+    suspend fun setFilterPriceRange(min: Float, max: Float) {
+        context.dataStore.edit { preferences ->
+            preferences[floatPreferencesKey(Constants.KEY_FILTER_PRICE_MIN)] = min
+            preferences[floatPreferencesKey(Constants.KEY_FILTER_PRICE_MAX)] = max
+        }
+    }
+
+    val selectedRoomTypes: Flow<Set<String>> = context.dataStore.data
+        .map { preferences ->
+            preferences[stringSetPreferencesKey(Constants.KEY_FILTER_ROOM_TYPES)] ?: emptySet()
+        }
+
+    suspend fun setSelectedRoomTypes(types: Set<String>) {
+        context.dataStore.edit { preferences ->
+            preferences[stringSetPreferencesKey(Constants.KEY_FILTER_ROOM_TYPES)] = types
+        }
+    }
+
+    val selectedGender: Flow<String> = context.dataStore.data
+        .map { preferences ->
+            preferences[stringPreferencesKey(Constants.KEY_FILTER_GENDER)] ?: Constants.GENDER_ANY
+        }
+
+    suspend fun setSelectedGender(gender: String) {
+        context.dataStore.edit { preferences ->
+            preferences[stringPreferencesKey(Constants.KEY_FILTER_GENDER)] = gender
+        }
+    }
+
+    val selectedAmenities: Flow<Set<String>> = context.dataStore.data
+        .map { preferences ->
+            preferences[stringSetPreferencesKey(Constants.KEY_FILTER_AMENITIES)] ?: emptySet()
+        }
+
+    suspend fun setSelectedAmenities(amenities: Set<String>) {
+        context.dataStore.edit { preferences ->
+            preferences[stringSetPreferencesKey(Constants.KEY_FILTER_AMENITIES)] = amenities
+        }
+    }
+
+    val sortOption: Flow<String> = context.dataStore.data
+        .map { preferences ->
+            preferences[stringPreferencesKey(Constants.KEY_SORT_OPTION)] ?: "NEWEST"
+        }
+
+    suspend fun setSortOption(option: String) {
+        context.dataStore.edit { preferences ->
+            preferences[stringPreferencesKey(Constants.KEY_SORT_OPTION)] = option
         }
     }
 

@@ -1,0 +1,26 @@
+﻿e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/naviga
+e: file:///C:/U...ityQuizScreen'.:String) [], RemoteExc 
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/Compat
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/Compat
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/Compat
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/Compat
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/Compat
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/Compat
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/Compat
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/Profil
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/profile/Profil
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/roommate/Compa
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/roommate/Compa
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/roommate/Compa
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/roommate/Compa
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/roommate/Compa
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/roommate/Compa
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/roommate/Compa
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/roommate/Compa
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/roommate/Roomm
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/roommate/Roomm
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/roommate/Roomm
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/roommate/Roomm
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/roommate/Roomm
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/roommate/Roomm
+e: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/screens/roommate/Roomm

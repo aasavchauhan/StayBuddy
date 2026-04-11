@@ -2,6 +2,14 @@ package com.example.staybuddy.data.model
 
 import com.google.firebase.firestore.PropertyName
 
+data class LifestylePreferences(
+    val isVegetarian: Boolean = false,
+    val isNonSmoker: Boolean = false,
+    val isWorkingProfessional: Boolean = false,
+    val isStudent: Boolean = false,
+    val isPetFriendly: Boolean = false
+)
+
 data class PgListing(
     val listingId: String = "",
     val ownerId: String = "",
@@ -33,7 +41,9 @@ data class PgListing(
     val isPremium: Boolean = false,
     val boostExpiresAt: Long? = null,
     val featuredUntil: Long? = null,
-    val viewCount: Int = 0
+    val viewCount: Int = 0,
+    // Lifestyle preferences
+    val lifestylePreferences: LifestylePreferences = LifestylePreferences()
 ) {
     constructor() : this("")
 }

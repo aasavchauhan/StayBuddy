@@ -29,6 +29,7 @@ data class AddRoommatePostUiState(
     val address: String = "",
     val latitude: Double? = null,
     val longitude: Double? = null,
+    val guestsVisitors: String = "",
     
     val isLoading: Boolean = false,
     val error: String? = null,
@@ -68,7 +69,8 @@ class AddRoommatePostViewModel @Inject constructor(
                             preferences = post.preferences,
                             address = post.address,
                             latitude = post.latitude,
-                            longitude = post.longitude
+                            longitude = post.longitude,
+                            guestsVisitors = post.guestsVisitors
                         )
                     } else {
                         _uiState.value = _uiState.value.copy(isLoading = false, error = "Post not found")
@@ -90,6 +92,7 @@ class AddRoommatePostViewModel @Inject constructor(
             "totalBeds" -> _uiState.value.copy(totalBeds = value)
             "roomType" -> _uiState.value.copy(roomType = value)
             "address" -> _uiState.value.copy(address = value)
+            "guestsVisitors" -> _uiState.value.copy(guestsVisitors = value)
             else -> _uiState.value
         }
     }
@@ -152,6 +155,7 @@ class AddRoommatePostViewModel @Inject constructor(
                 address = state.address,
                 latitude = state.latitude,
                 longitude = state.longitude,
+                guestsVisitors = state.guestsVisitors,
                 userName = user?.name ?: "",
                 userProfileImage = user?.profileImage ?: "",
                 userPhone = user?.phone ?: ""

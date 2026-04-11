@@ -18,6 +18,12 @@ import com.example.staybuddy.data.repository.AuthRepository
 import com.example.staybuddy.data.model.User
 import kotlinx.coroutines.flow.update
 import com.example.staybuddy.utils.Constants
+import com.example.staybuddy.data.repository.LocationRepository
+import com.example.staybuddy.domain.model.AutocompletePrediction
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 data class HomeUiState(
     val recommendedListings: List<PgListing> = emptyList(),
@@ -31,7 +37,10 @@ data class HomeUiState(
     val favoriteIds: Set<String> = emptySet(),
     val userName: String = "",
     val userRole: String = Constants.ROLE_STUDENT,
-    val selectedCategory: String = "All"
+    val selectedCategory: String = "All",
+    val searchQuery: String = "",
+    val searchResults: List<AutocompletePrediction> = emptyList(),
+    val isSearching: Boolean = false
 )
 
 val CITIES = listOf("Vadodara", "Ahmedabad", "Surat", "Rajkot", "Gandhinagar", "Mumbai", "Pune", "Bangalore")
@@ -47,7 +56,8 @@ class HomeViewModel @Inject constructor(
     private val favoriteRepository: FavoriteRepository,
     private val authRepository: AuthRepository,
     private val updateChecker: UpdateChecker,
-    private val analyticsHelper: AnalyticsHelper
+    private val analyticsHelper: AnalyticsHelper,
+    private val locationRepository: LocationRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -61,6 +71,7 @@ class HomeViewModel @Inject constructor(
         observeFavorites()
         fetchUserName()
         checkForUpdates()
+        observeSearchQuery()
         analyticsHelper.logScreenView("home")
     }
 
@@ -204,5 +215,39 @@ class HomeViewModel @Inject constructor(
     fun updateCategory(category: String) {
         _uiState.update { it.copy(selectedCategory = category) }
         loadData()
+    }
+
+    private val _searchQueryFlow = MutableStateFlow("")
+
+    @OptIn(FlowPreview::class)
+    private fun observeSearchQuery() {
+        viewModelScope.launch {
+            _searchQueryFlow
+                .debounce(500)
+                .distinctUntilChanged()
+                .collectLatest { query ->
+                    if (query.isBlank()) {
+                        _uiState.update { it.copy(searchResults = emptyList(), isSearching = false) }
+                        return@collectLatest
+                    }
+                    _uiState.update { it.copy(isSearching = true) }
+                    val result = locationRepository.searchLocation(query)
+                    if (result.isSuccess) {
+                        _uiState.update { 
+                            it.copy(
+                                searchResults = result.getOrNull() ?: emptyList(),
+                                isSearching = false
+                            ) 
+                        }
+                    } else {
+                        _uiState.update { it.copy(isSearching = false) }
+                    }
+                }
+        }
+    }
+
+    fun onSearchQueryChange(newQuery: String) {
+        _uiState.update { it.copy(searchQuery = newQuery) }
+        _searchQueryFlow.value = newQuery
     }
 }

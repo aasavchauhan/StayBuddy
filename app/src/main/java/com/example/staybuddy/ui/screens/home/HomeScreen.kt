@@ -43,6 +43,7 @@ import androidx.compose.foundation.BorderStroke
 import com.google.android.gms.location.LocationServices
 import com.example.staybuddy.ui.components.PgListingCard
 import com.example.staybuddy.ui.components.UpdateDialog
+import com.example.staybuddy.ui.components.ListingCardSkeleton
 import com.example.staybuddy.data.manager.UpdateInfo
 
 import kotlinx.coroutines.delay
@@ -274,7 +275,34 @@ fun HomeScreen(
                 }
 
                 // Recommended Section Header
-                if (uiState.recommendedListings.isNotEmpty()) {
+                if (uiState.isLoading && uiState.recommendedListings.isEmpty()) {
+                    item {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 24.dp, vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.Bottom
+                        ) {
+                            Text(
+                                text = "Recommended",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Black,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                        
+                        val pagerState = rememberPagerState(pageCount = { 2 })
+                        HorizontalPager(
+                            state = pagerState,
+                            contentPadding = PaddingValues(horizontal = 32.dp),
+                            pageSpacing = 16.dp,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            ListingCardSkeleton(modifier = Modifier.fillMaxWidth())
+                        }
+                    }
+                } else if (uiState.recommendedListings.isNotEmpty()) {
                     item {
                         Row(
                             modifier = Modifier
@@ -428,7 +456,13 @@ fun HomeScreen(
                     )
                 }
 
-                if (uiState.nearbyListings.isEmpty() && !uiState.isLoading) {
+                if (uiState.isLoading && uiState.nearbyListings.isEmpty()) {
+                    items(3) {
+                        ListingCardSkeleton(
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
+                    }
+                } else if (uiState.nearbyListings.isEmpty() && !uiState.isLoading) {
                     item {
                         Text(
                             text = "No listings found in your area.",

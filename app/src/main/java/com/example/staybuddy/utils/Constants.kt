@@ -41,6 +41,13 @@ object Constants {
     const val KEY_SELECTED_UNIVERSITY = "selected_university"
     const val KEY_LATITUDE = "latitude"
     const val KEY_LONGITUDE = "longitude"
+    const val KEY_SEARCH_HISTORY = "search_history"
+    const val KEY_FILTER_PRICE_MIN = "filter_price_min"
+    const val KEY_FILTER_PRICE_MAX = "filter_price_max"
+    const val KEY_FILTER_ROOM_TYPES = "filter_room_types"
+    const val KEY_FILTER_GENDER = "filter_gender"
+    const val KEY_FILTER_AMENITIES = "filter_amenities"
+    const val KEY_SORT_OPTION = "sort_option"
 
     // Amenities
     val AMENITIES_LIST = listOf(

@@ -31,7 +31,8 @@ data class RoommatePost(
     val sleepSchedule: String = "",
     val cleanlinessLevel: String = "",
     val foodPreference: String = "",
-    val smokingDrinking: String = ""
+    val smokingDrinking: String = "",
+    val guestsVisitors: String = ""
 ) {
     constructor() : this("")
 }

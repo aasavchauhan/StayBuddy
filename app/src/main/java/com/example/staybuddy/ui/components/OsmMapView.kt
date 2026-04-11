@@ -1,6 +1,11 @@
 package com.example.staybuddy.ui.components
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.drawable.BitmapDrawable
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -9,6 +14,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.example.staybuddy.data.model.PgListing
+import com.example.staybuddy.ui.components.map.PriceBubbleUtils
+import org.osmdroid.bonuspack.clustering.RadiusMarkerClusterer
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
@@ -18,54 +25,56 @@ import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 
-
 @Composable
 fun OsmMapView(
     modifier: Modifier = Modifier,
     listings: List<PgListing> = emptyList(),
     currentLocation: GeoPoint? = null,
+    selectedListing: PgListing? = null,
     isPickerMode: Boolean = false,
     onLocationSelected: (GeoPoint) -> Unit = {},
     onMarkerClick: (PgListing) -> Unit = {}
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    
-    // Remember map view to be used across recompositions but managed by AndroidView
+
     val mapView = remember {
         MapView(context).apply {
             setTileSource(TileSourceFactory.MAPNIK)
             zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
             setMultiTouchControls(true)
-            
-            // Set initial center if provided
+
             currentLocation?.let { loc ->
                 controller.setZoom(14.0)
                 controller.setCenter(loc)
             } ?: run {
-                // Default to Vadodara
                 controller.setZoom(12.0)
                 controller.setCenter(GeoPoint(22.3072, 73.1812))
             }
         }
     }
-    
-    // Handle user location overlay with lifecycle
+
     val myLocationOverlay = remember {
         MyLocationNewOverlay(GpsMyLocationProvider(context), mapView).apply {
             enableMyLocation()
         }
     }
 
-    // Picker Marker
     val pickerMarker = remember {
         Marker(mapView).apply {
             setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
             title = "Pinned Location"
         }
     }
-    
-    // Handle Lifecycle events
+
+    val clusterer = remember {
+        RadiusMarkerClusterer(context).apply {
+            // Default icon is a folder from resources but let's build a circular cluster icon
+            val clusterIcon = createClusterIcon(context)
+            setIcon(clusterIcon)
+        }
+    }
+
     DisposableEffect(lifecycleOwner) {
         val observer = object : DefaultLifecycleObserver {
             override fun onResume(owner: LifecycleOwner) {
@@ -78,23 +87,28 @@ fun OsmMapView(
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
-        
+
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
             myLocationOverlay.disableMyLocation()
             mapView.onDetach()
         }
     }
-    
-    // Update markers when listings change
-    LaunchedEffect(listings, currentLocation, isPickerMode) {
+
+    // Animate map when selected listing changes
+    LaunchedEffect(selectedListing) {
+        selectedListing?.let {
+            if (it.latitude != 0.0 && it.longitude != 0.0) {
+                mapView.controller.animateTo(GeoPoint(it.latitude, it.longitude))
+            }
+        }
+    }
+
+    LaunchedEffect(listings, currentLocation, isPickerMode, selectedListing) {
         mapView.overlays.clear()
-        
-        // Add location overlay
         mapView.overlays.add(myLocationOverlay)
 
         if (isPickerMode) {
-            // Add event overlay for clicking
             val eventsOverlay = org.osmdroid.views.overlay.MapEventsOverlay(object : org.osmdroid.events.MapEventsReceiver {
                 override fun singleTapConfirmedHelper(p: GeoPoint): Boolean {
                     pickerMarker.position = p
@@ -105,12 +119,10 @@ fun OsmMapView(
                     mapView.invalidate()
                     return true
                 }
-
                 override fun longPressHelper(p: GeoPoint): Boolean = false
             })
             mapView.overlays.add(eventsOverlay)
 
-            // If we already have a location, show the marker
             currentLocation?.let {
                 if (it.latitude != 0.0 || it.longitude != 0.0) {
                     pickerMarker.position = it
@@ -120,36 +132,41 @@ fun OsmMapView(
                 }
             }
         } else {
-            // Add markers
+            clusterer.items.clear()
             listings.forEach { listing ->
                 if (listing.latitude != 0.0 && listing.longitude != 0.0) {
+                    val isSelected = (listing.listingId == selectedListing?.listingId)
                     val marker = Marker(mapView)
                     marker.position = GeoPoint(listing.latitude, listing.longitude)
                     marker.title = listing.title
-                    marker.snippet = "₹${listing.price}/mo"
                     marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                     
-                    // Use custom marker icon
-                    val markerIcon = androidx.core.content.ContextCompat.getDrawable(context, com.example.staybuddy.R.drawable.ic_map_marker_premium)
-                    marker.icon = markerIcon
+                    marker.icon = PriceBubbleUtils.createPriceBubbleDrawable(context, listing.price, isSelected)
                     
                     marker.setOnMarkerClickListener { _, _ ->
                         onMarkerClick(listing)
                         true
                     }
+                    clusterer.items.add(marker)
                     
-                    mapView.overlays.add(marker)
+                    // Note: Osmdroid's RadiusMarkerClusterer does not immediately render the selection above clusters if part of it. 
+                    // To handle this perfectly, we might add selected markers separate from the clusterer.
+                    // But RadiusMarkerClusterer doesn't easily let us say "cluster everything except this".
+                    // For now, this is okay.
                 }
             }
+            mapView.overlays.add(clusterer)
         }
+        
+        // Ensure clusterer redraws if anything changed
+        clusterer.invalidate()
         mapView.invalidate()
     }
-    
+
     AndroidView(
         factory = { 
             mapView.apply {
-                // Intercept touch events to prevent parent scrolling (Column/LazyColumn)
-                setOnTouchListener { v, event ->
+                setOnTouchListener { v, _ ->
                     v.parent.requestDisallowInterceptTouchEvent(true)
                     false
                 }
@@ -157,4 +174,25 @@ fun OsmMapView(
         },
         modifier = modifier
     )
+}
+
+private fun createClusterIcon(context: Context): Bitmap {
+    val scale = context.resources.displayMetrics.density
+    val size = (40f * scale).toInt()
+    
+    val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(bitmap)
+    
+    val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.parseColor("#4B5563") // Gray for clusters
+    }
+    
+    canvas.drawCircle(size / 2f, size / 2f, size / 2f, paint)
+    
+    paint.color = Color.WHITE
+    paint.style = Paint.Style.STROKE
+    paint.strokeWidth = 2f * scale
+    canvas.drawCircle(size / 2f, size / 2f, size / 2f - paint.strokeWidth/2, paint)
+    
+    return bitmap
 }
