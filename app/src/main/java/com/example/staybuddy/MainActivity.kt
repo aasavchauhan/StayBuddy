@@ -33,12 +33,13 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainApp(viewModel: MainViewModel = hiltViewModel()) {
-    LaunchedEffect(Unit) {
-        android.util.Log.d("MainActivity", "MainApp: Composed")
-    }
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+
+    LaunchedEffect(currentRoute) {
+        viewModel.refreshSession()
+    }
     val uiState by viewModel.uiState.collectAsState()
 
     // Screens that show the bottom navigation bar
@@ -55,7 +56,7 @@ fun MainApp(viewModel: MainViewModel = hiltViewModel()) {
 
     val showBottomBar = currentRoute in bottomNavRoutes
 
-    val bottomNavItems = if (uiState.userRole == "owner") {
+    val bottomNavItems = if (uiState.userRole.equals("owner", ignoreCase = true)) {
         BottomNavItems.ownerItems
     } else {
         BottomNavItems.studentItems
