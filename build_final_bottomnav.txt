@@ -1,0 +1,28 @@
+﻿> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:generateDebugBuildConfig UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:processDebugGoogleServices UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest
+> Task :app:processDebugManifest
+> Task :app:processDebugManifestForPackage
+> Task :app:processDebugResources
+> Task :app:kspDebugKotlin
+
+> Task :app:compileDebugKotlin
+w: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/navigation/BottomNavItem.kt:32:68 'val Icons.Filled.Chat: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Chat.
+w: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/navigation/BottomNavItem.kt:32:89 'val Icons.Outlined.Chat: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Outlined.Chat.
+w: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/navigation/BottomNavItem.kt:40:68 'val Icons.Filled.Chat: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Chat.
+w: file:///C:/Users/Aasav/StayBuddy/app/src/main/java/com/example/staybuddy/ui/navigation/BottomNavItem.kt:40:89 'val Icons.Outlined.Chat: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Outlined.Chat.
+
+BUILD SUCCESSFUL in 1m 34s
+17 actionable tasks: 6 executed, 11 up-to-date

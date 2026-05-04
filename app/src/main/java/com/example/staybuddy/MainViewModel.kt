@@ -26,10 +26,10 @@ class MainViewModel @Inject constructor(
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
 
     init {
-        checkUserSession()
+        refreshSession()
     }
 
-    private fun checkUserSession() {
+    fun refreshSession() {
         val currentUser = authRepository.currentUser
         if (currentUser == null) {
             _uiState.value = MainUiState(isLoading = false, isLoggedIn = false)
