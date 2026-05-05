@@ -31,6 +31,10 @@ class InquiryRepository @Inject constructor(
             .whereEqualTo("hostId", hostId)
             .orderBy("createdAt", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
                 if (snapshot == null || snapshot.isEmpty) {
                     trySend(emptyList())
                     return@addSnapshotListener
@@ -46,6 +50,10 @@ class InquiryRepository @Inject constructor(
             .whereEqualTo("userId", userId)
             .orderBy("createdAt", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
                 if (snapshot == null || snapshot.isEmpty) {
                     trySend(emptyList())
                     return@addSnapshotListener

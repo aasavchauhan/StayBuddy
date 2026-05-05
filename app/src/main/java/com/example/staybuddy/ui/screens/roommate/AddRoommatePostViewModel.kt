@@ -134,6 +134,11 @@ class AddRoommatePostViewModel @Inject constructor(
             return
         }
 
+        if (totalBeds > 0 && availableBeds > totalBeds) {
+            _uiState.value = _uiState.value.copy(error = "Available beds cannot exceed total beds")
+            return
+        }
+
         _uiState.value = _uiState.value.copy(isLoading = true, error = null)
 
         viewModelScope.launch {
