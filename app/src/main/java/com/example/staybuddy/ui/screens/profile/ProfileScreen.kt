@@ -170,15 +170,17 @@ fun ProfileScreen(
                                         onClick = onNavigateToEditProfile
                                     )
 
-                                    HorizontalDivider(modifier = Modifier.padding(horizontal = 20.dp), thickness = 0.5.dp, color = Color.LightGray.copy(alpha = 0.3f))
+                                    if (user.role == Constants.ROLE_STUDENT) {
+                                        HorizontalDivider(modifier = Modifier.padding(horizontal = 20.dp), thickness = 0.5.dp, color = Color.LightGray.copy(alpha = 0.3f))
 
-                                    ProfileOptionItem(
-                                        title = "Compatibility Quiz",
-                                        subtitle = "Find your perfect roommate match",
-                                        icon = Icons.Default.FactCheck,
-                                        iconColor = Color(0xFF10B981),
-                                        onClick = onNavigateToCompatibilityQuiz
-                                    )
+                                        ProfileOptionItem(
+                                            title = "Compatibility Quiz",
+                                            subtitle = "Find your perfect roommate match",
+                                            icon = Icons.Default.FactCheck,
+                                            iconColor = Color(0xFF10B981),
+                                            onClick = onNavigateToCompatibilityQuiz
+                                        )
+                                    }
                                 }
                             }
 
