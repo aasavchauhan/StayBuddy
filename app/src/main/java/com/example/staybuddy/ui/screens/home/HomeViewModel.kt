@@ -67,7 +67,6 @@ class HomeViewModel @Inject constructor(
 
     init {
         observePreferences()
-        loadData()
         observeFavorites()
         fetchUserName()
         checkForUpdates()

@@ -152,6 +152,14 @@ class AddListingViewModel @Inject constructor(
                 _uiState.value = state.copy(error = "Please fill all pricing fields")
                 return
             }
+            if (state.monthlyRent.toIntOrNull() == null || state.monthlyRent.toInt() <= 0) {
+                _uiState.value = state.copy(error = "Monthly rent must be a valid positive number")
+                return
+            }
+            if (state.depositAmount.toIntOrNull() == null || state.depositAmount.toInt() < 0) {
+                _uiState.value = state.copy(error = "Deposit must be a valid non-negative number")
+                return
+            }
         } else if (state.currentStep == 4) {
             val totalImages = state.imageUris.size + state.existingImageUrls.size
             if (totalImages < 3) {

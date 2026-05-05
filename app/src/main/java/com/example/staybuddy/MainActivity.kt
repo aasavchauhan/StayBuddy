@@ -38,7 +38,9 @@ fun MainApp(viewModel: MainViewModel = hiltViewModel()) {
     val currentRoute = navBackStackEntry?.destination?.route
 
     LaunchedEffect(currentRoute) {
-        viewModel.refreshSession()
+        if (currentRoute == Screen.Home.route || currentRoute == Screen.Profile.route) {
+            viewModel.refreshSession()
+        }
     }
     val uiState by viewModel.uiState.collectAsState()
 
@@ -73,7 +75,7 @@ fun MainApp(viewModel: MainViewModel = hiltViewModel()) {
                             selected = isSelected,
                             onClick = {
                                 if (currentRoute != item.route) {
-                                    navController.navigate(item.route) {
+                                    navController.navigate(item.navigationRoute) {
                                         popUpTo(Screen.Home.route) { saveState = true }
                                         launchSingleTop = true
                                         restoreState = true
