@@ -32,6 +32,7 @@ fun OsmMapView(
     currentLocation: GeoPoint? = null,
     selectedListing: PgListing? = null,
     isPickerMode: Boolean = false,
+    myLocationTrigger: Int = 0,
     onLocationSelected: (GeoPoint) -> Unit = {},
     onMarkerClick: (PgListing) -> Unit = {}
 ) {
@@ -95,16 +96,43 @@ fun OsmMapView(
         }
     }
 
-    // Animate map when selected listing changes
+    // Animate map when selected listing changes or update marker colors
     LaunchedEffect(selectedListing) {
         selectedListing?.let {
             if (it.latitude != 0.0 && it.longitude != 0.0) {
                 mapView.controller.animateTo(GeoPoint(it.latitude, it.longitude))
             }
         }
+        
+        if (!isPickerMode) {
+            clusterer.items.forEach { item ->
+                if (item is Marker) {
+                    val listingId = item.id
+                    val isSelected = (listingId == selectedListing?.listingId)
+                    val listing = listings.find { it.listingId == listingId }
+                    if (listing != null) {
+                        item.icon = PriceBubbleUtils.createPriceBubbleDrawable(context, listing.price, isSelected)
+                    }
+                }
+            }
+            clusterer.invalidate()
+            mapView.invalidate()
+        }
+    }
+    
+    // Handle "My Location" trigger
+    LaunchedEffect(myLocationTrigger) {
+        if (myLocationTrigger > 0) {
+            val loc = myLocationOverlay.myLocation
+            if (loc != null) {
+                mapView.controller.animateTo(loc)
+            } else {
+                currentLocation?.let { mapView.controller.animateTo(it) }
+            }
+        }
     }
 
-    LaunchedEffect(listings, currentLocation, isPickerMode, selectedListing) {
+    LaunchedEffect(listings, currentLocation, isPickerMode) {
         mapView.overlays.clear()
         mapView.overlays.add(myLocationOverlay)
 
@@ -137,6 +165,7 @@ fun OsmMapView(
                 if (listing.latitude != 0.0 && listing.longitude != 0.0) {
                     val isSelected = (listing.listingId == selectedListing?.listingId)
                     val marker = Marker(mapView)
+                    marker.id = listing.listingId
                     marker.position = GeoPoint(listing.latitude, listing.longitude)
                     marker.title = listing.title
                     marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)

@@ -60,6 +60,8 @@ class HomeViewModel @Inject constructor(
     private val locationRepository: LocationRepository
 ) : ViewModel() {
 
+    private val _searchQueryFlow = MutableStateFlow("")
+
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
@@ -125,11 +127,15 @@ class HomeViewModel @Inject constructor(
 
     private fun observeFavorites() {
         viewModelScope.launch {
-            favoriteRepository.getFavoriteListingIds()
-                .catch { /* Handle error gracefully or ignore */ }
-                .collect { ids ->
-                    _uiState.value = _uiState.value.copy(favoriteIds = ids.toSet())
-                }
+            try {
+                favoriteRepository.getFavoriteListingIds()
+                    .catch { /* Handle Firestore permission errors gracefully */ }
+                    .collect { ids ->
+                        _uiState.value = _uiState.value.copy(favoriteIds = ids.toSet())
+                    }
+            } catch (e: Exception) {
+                // Ignore favorites loading error - non-critical feature
+            }
         }
     }
 
@@ -216,7 +222,6 @@ class HomeViewModel @Inject constructor(
         loadData()
     }
 
-    private val _searchQueryFlow = MutableStateFlow("")
 
     @OptIn(FlowPreview::class)
     private fun observeSearchQuery() {

@@ -9,12 +9,12 @@ plugins {
 
 android {
     namespace = "com.example.staybuddy"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.staybuddy"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0.0"
 
@@ -33,21 +33,10 @@ android {
         jvmTarget = "17"
     }
 
-    signingConfigs {
-        create("release") {
-            // These properties should be set in environment variables (e.g., in GitHub Secrets)
-            storeFile = System.getenv("RELEASE_KEYSTORE_PATH")?.let { file(it) }
-            storePassword = System.getenv("RELEASE_KEYSTORE_PASSWORD")
-            keyAlias = System.getenv("RELEASE_KEY_ALIAS")
-            keyPassword = System.getenv("RELEASE_KEY_PASSWORD")
-        }
-    }
-
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -97,7 +86,6 @@ dependencies {
     implementation(libs.firebase.storage.ktx)
     implementation(libs.firebase.messaging.ktx)
     implementation(libs.firebase.analytics.ktx)
-    implementation(libs.firebase.config.ktx)
 
     // Google Sign-In & Credential Manager
     implementation(libs.play.services.auth)
@@ -107,7 +95,6 @@ dependencies {
 
     // Maps (osmdroid — free OpenStreetMap, no API key needed)
     implementation(libs.osmdroid.android)
-    implementation("com.github.MKergall:osmbonuspack:6.9.0")
     implementation(libs.play.services.location)
 
     // Hilt DI
@@ -125,11 +112,6 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.play.services)
 
-    // Networking
-    implementation(libs.retrofit)
-    implementation(libs.retrofit.converter.gson)
-    implementation(libs.okhttp.logging)
-
     // DataStore
     implementation(libs.datastore.preferences)
 
@@ -137,14 +119,14 @@ dependencies {
     implementation(libs.accompanist.permissions)
 
     // Stream Chat
+    implementation(libs.stream.chat.compose)
+    implementation(libs.stream.chat.offline)
+    implementation(libs.stream.chat.push.firebase)
+
+
     // Core & AppCompat
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)
-
-    // Room
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
-    ksp(libs.androidx.room.compiler)
 
     // Testing
     testImplementation(libs.junit)

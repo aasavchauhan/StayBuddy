@@ -1,5 +1,6 @@
 package com.example.staybuddy.data.repository
 
+import android.util.Log
 import com.example.staybuddy.data.model.Inquiry
 import com.example.staybuddy.utils.Constants
 import com.google.firebase.firestore.FirebaseFirestore
@@ -32,7 +33,8 @@ class InquiryRepository @Inject constructor(
             .orderBy("createdAt", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    close(error)
+                    Log.e("InquiryRepository", "Error fetching host inquiries", error)
+                    trySend(emptyList())
                     return@addSnapshotListener
                 }
                 if (snapshot == null || snapshot.isEmpty) {
@@ -51,7 +53,8 @@ class InquiryRepository @Inject constructor(
             .orderBy("createdAt", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    close(error)
+                    Log.e("InquiryRepository", "Error fetching user inquiries", error)
+                    trySend(emptyList())
                     return@addSnapshotListener
                 }
                 if (snapshot == null || snapshot.isEmpty) {

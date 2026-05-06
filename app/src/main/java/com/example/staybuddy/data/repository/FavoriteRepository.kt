@@ -31,7 +31,11 @@ class FavoriteRepository @Inject constructor(
                 firestore.collection(Constants.FAVORITES_COLLECTION)
                     .whereEqualTo("userId", userId)
                     .addSnapshotListener { snapshot, error ->
-                        if (error == null && snapshot != null) {
+                        if (error != null) {
+                            // Handle permission errors gracefully - don't crash
+                            return@addSnapshotListener
+                        }
+                        if (snapshot != null) {
                             val ids = snapshot.documents.mapNotNull { it.getString("listingId") }
                             repositoryScope.launch {
                                 favoriteDao.clearFavorites(userId)

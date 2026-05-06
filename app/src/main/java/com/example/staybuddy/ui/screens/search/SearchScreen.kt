@@ -41,6 +41,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.staybuddy.domain.model.AutocompletePrediction
 import com.example.staybuddy.ui.components.OsmMapView
 import com.example.staybuddy.ui.components.PgListingCard
+import com.example.staybuddy.ui.components.map.CompactMapCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,364 +55,384 @@ fun SearchScreen(
     val focusManager = LocalFocusManager.current
 
     Scaffold(
-        topBar = {
-            Surface(
-                color = MaterialTheme.colorScheme.surface,
-                shadowElevation = 4.dp,
-                tonalElevation = 1.dp
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        content = { padding ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = padding.calculateBottomPadding())
             ) {
-                Column(
-                    modifier = Modifier
-                        .statusBarsPadding()
-                        .padding(bottom = 8.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 8.dp, vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(onClick = onNavigateBack) {
-                            Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
-                        }
-                        
-                        Surface(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(52.dp)
-                                .padding(horizontal = 4.dp),
-                            shape = RoundedCornerShape(16.dp),
-                            color = MaterialTheme.colorScheme.surfaceColorAtElevation(4.dp),
-                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
-                        ) {
-                            TextField(
-                                value = uiState.query,
-                                onValueChange = viewModel::onQueryChange,
-                                placeholder = { 
-                                    Text(
-                                        "Search PGs, hostels...", 
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                                    ) 
-                                },
-                                modifier = Modifier.fillMaxSize(),
-                                singleLine = true,
-                                colors = TextFieldDefaults.colors(
-                                    focusedContainerColor = Color.Transparent,
-                                    unfocusedContainerColor = Color.Transparent,
-                                    disabledContainerColor = Color.Transparent,
-                                    focusedIndicatorColor = Color.Transparent,
-                                    unfocusedIndicatorColor = Color.Transparent,
-                                ),
-                                trailingIcon = {
-                                    if (uiState.query.isNotEmpty()) {
-                                        IconButton(onClick = { viewModel.onQueryChange("") }) {
-                                            Icon(
-                                                imageVector = Icons.Rounded.Close,
-                                                contentDescription = "Clear",
-                                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                // Background Layer: Map or List
+                if (uiState.isLoading) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(strokeWidth = 3.dp, modifier = Modifier.size(48.dp))
+                    }
+                } else if (uiState.isMapView) {
+                    // MAP VIEW
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        OsmMapView(
+                            modifier = Modifier.fillMaxSize(),
+                            listings = uiState.filteredListings,
+                            selectedListing = uiState.selectedListing,
+                            onMarkerClick = { listing -> viewModel.selectListing(listing) }
+                        )
+
+                        // Map Carousel
+                        if (uiState.filteredListings.isNotEmpty()) {
+                            val pagerState = rememberPagerState(pageCount = { uiState.filteredListings.size })
+                            
+                            LaunchedEffect(uiState.selectedListing) {
+                                uiState.selectedListing?.let { selected ->
+                                    val index = uiState.filteredListings.indexOfFirst { it.listingId == selected.listingId }
+                                    if (index != -1 && pagerState.currentPage != index) {
+                                        pagerState.animateScrollToPage(index)
+                                    }
+                                }
+                            }
+
+                            LaunchedEffect(pagerState.currentPage) {
+                                if (uiState.filteredListings.isNotEmpty()) {
+                                    viewModel.selectListing(uiState.filteredListings[pagerState.currentPage])
+                                }
+                            }
+
+                            HorizontalPager(
+                                state = pagerState,
+                                modifier = Modifier
+                                    .align(Alignment.BottomCenter)
+                                    .padding(bottom = 100.dp) // Leave space for Floating Toggle
+                                    .fillMaxWidth(),
+                                contentPadding = PaddingValues(horizontal = 32.dp),
+                                pageSpacing = 16.dp
+                            ) { page ->
+                                val listing = uiState.filteredListings[page]
+                                CompactMapCard(
+                                    listing = listing,
+                                    onCardClick = { onNavigateToListingDetail(listing.listingId) },
+                                    onFavoriteClick = { viewModel.toggleFavorite(listing.listingId) },
+                                    modifier = Modifier
+                                        .graphicsLayer {
+                                            val pageOffset = ((pagerState.currentPage - page) + pagerState.currentPageOffsetFraction).absoluteValue
+                                            alpha = lerp(
+                                                start = 0.5f,
+                                                stop = 1f,
+                                                fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                                            )
+                                            scaleY = lerp(
+                                                start = 0.85f,
+                                                stop = 1f,
+                                                fraction = 1f - pageOffset.coerceIn(0f, 1f)
                                             )
                                         }
-                                    }
-                                },
-                                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                                keyboardActions = KeyboardActions(onSearch = { focusManager.clearFocus() }),
-                                textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium)
-                            )
-                        }
-
-                        IconButton(
-                            onClick = { viewModel.toggleFilterSheet(true) },
-                            modifier = Modifier
-                                .padding(start = 4.dp)
-                                .size(52.dp)
-                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f), RoundedCornerShape(16.dp))
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.FilterList, 
-                                contentDescription = "Filter",
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    }
-
-                    // Offline Banner
-                    if (uiState.isOffline) {
-                        Surface(
-                            modifier = Modifier.fillMaxWidth(),
-                            color = MaterialTheme.colorScheme.errorContainer,
-                            tonalElevation = 2.dp
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                                horizontalArrangement = Arrangement.Center,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.CloudOff,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.error,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    "You're offline. Showing cached results.",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.onErrorContainer
                                 )
                             }
-                        }
-                    }
-
-                    // Suggestions & History
-                    val showHistory = uiState.query.isEmpty() && uiState.recentSearches.isNotEmpty()
-                    val showPredictions = uiState.query.isNotEmpty() && uiState.locationPredictions.isNotEmpty()
-                    
-                    if (showHistory || showPredictions) {
-                        Column(modifier = Modifier.padding(top = 4.dp, bottom = 8.dp)) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 4.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = if (showHistory) "Recent Searches" else "Suggestions",
-                                    style = MaterialTheme.typography.labelLarge,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                                if (showHistory) {
-                                    TextButton(
-                                        onClick = viewModel::clearSearchHistory,
-                                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
-                                        modifier = Modifier.height(32.dp)
-                                    ) {
-                                        Text("Clear All", style = MaterialTheme.typography.labelMedium)
-                                    }
-                                }
-                            }
-                            
-                            val displayList = if (showHistory) uiState.recentSearches else uiState.locationPredictions
-                            displayList.forEach { prediction ->
-                                LocationSuggestionItem(
-                                    prediction = prediction,
-                                    icon = if (showHistory) Icons.Default.History else Icons.Default.LocationOn,
-                                    onClick = { 
-                                        viewModel.selectLocation(prediction)
-                                        focusManager.clearFocus()
-                                    },
-                                    onRemove = if (showHistory) { { viewModel.removeFromHistory(prediction) } } else null
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        content = { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
-            // Map/List Toggle with premium count indicator
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    Text(
-                        text = if (uiState.filteredListings.isNotEmpty()) 
-                            "${uiState.filteredListings.size} properties" 
-                        else "No results",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Black,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = "found in your area",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-
-                SegmentedButtonToggleGroup(
-                    isMapView = uiState.isMapView,
-                    onToggle = viewModel::toggleMapView
-                )
-            }
-
-            if (uiState.isLoading) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(strokeWidth = 3.dp, modifier = Modifier.size(48.dp))
-                }
-            } else if (uiState.isMapView) {
-                // Map View
-                Box(modifier = Modifier.fillMaxSize()) {
-                    OsmMapView(
-                        modifier = Modifier.fillMaxSize(),
-                        listings = uiState.filteredListings,
-                        selectedListing = uiState.selectedListing,
-                        onMarkerClick = { listing -> viewModel.selectListing(listing) }
-                    )
-
-                    // Map Carousel
-                    if (uiState.filteredListings.isNotEmpty()) {
-                        val pagerState = rememberPagerState(pageCount = { uiState.filteredListings.size })
-                        
-                        // Sync Pager with selectedListing
-                        LaunchedEffect(uiState.selectedListing) {
-                            uiState.selectedListing?.let { selected ->
-                                val index = uiState.filteredListings.indexOfFirst { it.listingId == selected.listingId }
-                                if (index != -1 && pagerState.currentPage != index) {
-                                    pagerState.animateScrollToPage(index)
-                                }
-                            }
-                        }
-
-                        // Sync selectedListing with Pager
-                        LaunchedEffect(pagerState.currentPage) {
-                            if (uiState.filteredListings.isNotEmpty()) {
-                                viewModel.selectListing(uiState.filteredListings[pagerState.currentPage])
-                            }
-                        }
-
-                        HorizontalPager(
-                            state = pagerState,
-                            modifier = Modifier
-                                .align(Alignment.BottomCenter)
-                                .padding(bottom = 32.dp)
-                                .fillMaxWidth(),
-                            contentPadding = PaddingValues(horizontal = 48.dp),
-                            pageSpacing = 16.dp
-                        ) { page ->
-                            val listing = uiState.filteredListings[page]
-                            PgListingCard(
-                                listing = listing,
-                                onCardClick = { onNavigateToListingDetail(listing.listingId) },
-                                onFavoriteClick = { viewModel.toggleFavorite(listing.listingId) },
-                                modifier = Modifier
-                                    .graphicsLayer {
-                                        // Simple scale animation for the focused item
-                                        val pageOffset = ((pagerState.currentPage - page) + pagerState.currentPageOffsetFraction).absoluteValue
-                                        alpha = lerp(
-                                            start = 0.5f,
-                                            stop = 1f,
-                                            fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                                        )
-                                        scaleY = lerp(
-                                            start = 0.85f,
-                                            stop = 1f,
-                                            fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                                        )
-                                    }
-                            )
-                        }
-                    }
-                }
-            } else {
-                // List View
-                if (uiState.filteredListings.isEmpty()) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(
-                                text = "No listings found.",
-                                style = MaterialTheme.typography.headlineSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            Text(
-                                text = "Try adjusting your filters.",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
                         }
                     }
                 } else {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(bottom = 24.dp)
-                    ) {
-                        items(uiState.filteredListings) { listing ->
-                            PgListingCard(
-                                listing = listing,
-                                onCardClick = { onNavigateToListingDetail(listing.listingId) },
-                                onFavoriteClick = { viewModel.toggleFavorite(listing.listingId) },
-                                modifier = Modifier.padding(horizontal = 24.dp, vertical = 10.dp)
-                            )
+                    // LIST VIEW
+                    if (uiState.filteredListings.isEmpty()) {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    text = "No listings found.",
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = "Try adjusting your filters.",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(top = 130.dp, bottom = 100.dp)
+                        ) {
+                            item {
+                                Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)) {
+                                    Text(
+                                        text = "${uiState.filteredListings.size} properties",
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Black,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Text(
+                                        text = "found in your area",
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                            items(uiState.filteredListings) { listing ->
+                                PgListingCard(
+                                    listing = listing,
+                                    onCardClick = { onNavigateToListingDetail(listing.listingId) },
+                                    onFavoriteClick = { viewModel.toggleFavorite(listing.listingId) },
+                                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 10.dp)
+                                )
+                            }
                         }
                     }
                 }
+
+                // Foreground layer: Floating Search Bar
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .fillMaxWidth()
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                if (uiState.isMapView) 
+                                    androidx.compose.ui.graphics.Brush.verticalGradient(
+                                        colors = listOf(Color.Transparent, Color.Transparent)
+                                    )
+                                else 
+                                    androidx.compose.ui.graphics.Brush.verticalGradient(
+                                        colors = listOf(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.surface.copy(alpha = 0.9f))
+                                    )
+                            )
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .statusBarsPadding()
+                                .padding(bottom = 8.dp)
+                        ) {
+                            // Search Pill
+                            Surface(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                                shape = RoundedCornerShape(28.dp),
+                                color = MaterialTheme.colorScheme.surface,
+                                shadowElevation = 8.dp,
+                                tonalElevation = 2.dp
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 4.dp, vertical = 4.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    IconButton(onClick = onNavigateBack) {
+                                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+                                    }
+                                    
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .height(48.dp),
+                                        contentAlignment = Alignment.CenterStart
+                                    ) {
+                                        TextField(
+                                            value = uiState.query,
+                                            onValueChange = viewModel::onQueryChange,
+                                            placeholder = { 
+                                                Text(
+                                                    "Search PGs, hostels...", 
+                                                    style = MaterialTheme.typography.bodyLarge,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                                                ) 
+                                            },
+                                            modifier = Modifier.fillMaxSize(),
+                                            singleLine = true,
+                                            colors = TextFieldDefaults.colors(
+                                                focusedContainerColor = Color.Transparent,
+                                                unfocusedContainerColor = Color.Transparent,
+                                                disabledContainerColor = Color.Transparent,
+                                                focusedIndicatorColor = Color.Transparent,
+                                                unfocusedIndicatorColor = Color.Transparent,
+                                            ),
+                                            trailingIcon = {
+                                                if (uiState.query.isNotEmpty()) {
+                                                    IconButton(onClick = { viewModel.onQueryChange("") }) {
+                                                        Icon(
+                                                            imageVector = Icons.Rounded.Close,
+                                                            contentDescription = "Clear",
+                                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                                        )
+                                                    }
+                                                }
+                                            },
+                                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                                            keyboardActions = KeyboardActions(onSearch = { focusManager.clearFocus() }),
+                                            textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium)
+                                        )
+                                    }
+
+                                    Box(
+                                        modifier = Modifier
+                                            .width(1.dp)
+                                            .height(32.dp)
+                                            .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                                    )
+
+                                    IconButton(
+                                        onClick = { viewModel.toggleFilterSheet(true) },
+                                        modifier = Modifier.padding(horizontal = 4.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.FilterList, 
+                                            contentDescription = "Filter",
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                }
+                            }
+
+                            // Offline Banner
+                            if (uiState.isOffline) {
+                                Surface(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                                    shape = RoundedCornerShape(12.dp),
+                                    color = MaterialTheme.colorScheme.errorContainer,
+                                    shadowElevation = 4.dp
+                                ) {
+                                    Row(
+                                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                                        horizontalArrangement = Arrangement.Center,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.CloudOff,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.error,
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            "You're offline. Showing cached results.",
+                                            style = MaterialTheme.typography.labelMedium,
+                                            color = MaterialTheme.colorScheme.onErrorContainer
+                                        )
+                                    }
+                                }
+                            }
+
+                            // Suggestions & History
+                            val showHistory = uiState.query.isEmpty() && uiState.recentSearches.isNotEmpty()
+                            val showPredictions = uiState.query.isNotEmpty() && uiState.locationPredictions.isNotEmpty()
+                            
+                            if (showHistory || showPredictions) {
+                                Surface(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                                    shape = RoundedCornerShape(16.dp),
+                                    color = MaterialTheme.colorScheme.surface,
+                                    shadowElevation = 8.dp
+                                ) {
+                                    Column(modifier = Modifier.padding(top = 4.dp, bottom = 8.dp)) {
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(horizontal = 16.dp, vertical = 4.dp),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(
+                                                text = if (showHistory) "Recent Searches" else "Suggestions",
+                                                style = MaterialTheme.typography.labelLarge,
+                                                fontWeight = FontWeight.Bold,
+                                                color = MaterialTheme.colorScheme.primary
+                                            )
+                                            if (showHistory) {
+                                                TextButton(
+                                                    onClick = viewModel::clearSearchHistory,
+                                                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
+                                                    modifier = Modifier.height(32.dp)
+                                                ) {
+                                                    Text("Clear All", style = MaterialTheme.typography.labelMedium)
+                                                }
+                                            }
+                                        }
+                                        
+                                        val displayList = if (showHistory) uiState.recentSearches else uiState.locationPredictions
+                                        displayList.forEach { prediction ->
+                                            LocationSuggestionItem(
+                                                prediction = prediction,
+                                                icon = if (showHistory) Icons.Default.History else Icons.Default.LocationOn,
+                                                onClick = { 
+                                                    viewModel.selectLocation(prediction)
+                                                    focusManager.clearFocus()
+                                                },
+                                                onRemove = if (showHistory) { { viewModel.removeFromHistory(prediction) } } else null
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Foreground layer: Floating Toggle Map/List Button
+                FloatingToggleButton(
+                    isMapView = uiState.isMapView,
+                    onToggle = viewModel::toggleMapView,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 32.dp)
+                        .navigationBarsPadding()
+                )
+            }
+
+            // Filter Bottom Sheet
+            if (uiState.isFilterSheetVisible) {
+                FilterBottomSheet(
+                    uiState = uiState,
+                    onDismiss = { viewModel.toggleFilterSheet(false) },
+                    onPriceChange = viewModel::updatePriceRange,
+                    onRoomTypeToggle = viewModel::toggleRoomType,
+                    onGenderChange = viewModel::setGenderFilter,
+                    onAmenityToggle = viewModel::toggleAmenity,
+                    onDistanceChange = viewModel::updateMaxDistance,
+                    onSortOrderChange = viewModel::updateSortOption,
+                    onClearFilters = viewModel::clearFilters
+                )
             }
         }
-
-        // Filter Bottom Sheet
-        if (uiState.isFilterSheetVisible) {
-            FilterBottomSheet(
-                uiState = uiState,
-                onDismiss = { viewModel.toggleFilterSheet(false) },
-                onPriceChange = viewModel::updatePriceRange,
-                onRoomTypeToggle = viewModel::toggleRoomType,
-                onGenderChange = viewModel::setGenderFilter,
-                onAmenityToggle = viewModel::toggleAmenity,
-                onDistanceChange = viewModel::updateMaxDistance,
-                onSortOrderChange = viewModel::updateSortOption,
-                onClearFilters = viewModel::clearFilters
-            )
-        }
-    }
-)
+    )
 }
 
 @Composable
-fun SegmentedButtonToggleGroup(isMapView: Boolean, onToggle: (Boolean) -> Unit) {
+fun FloatingToggleButton(
+    isMapView: Boolean,
+    onToggle: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
     Surface(
-        shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+        modifier = modifier.height(48.dp),
+        shape = RoundedCornerShape(24.dp),
+        color = MaterialTheme.colorScheme.inverseSurface,
+        contentColor = MaterialTheme.colorScheme.inverseOnSurface,
+        shadowElevation = 8.dp
     ) {
-        Row(modifier = Modifier.padding(4.dp)) {
-            // List Button
-            Surface(
-                modifier = Modifier
-                    .height(40.dp)
-                    .clickable { onToggle(false) },
-                shape = RoundedCornerShape(12.dp),
-                color = if (!isMapView) MaterialTheme.colorScheme.primary else Color.Transparent,
-                contentColor = if (!isMapView) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(imageVector = Icons.Default.ViewList, contentDescription = "List", modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("List", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
-                }
-            }
-            // Map Button
-            Surface(
-                modifier = Modifier
-                    .height(40.dp)
-                    .clickable { onToggle(true) },
-                shape = RoundedCornerShape(12.dp),
-                color = if (isMapView) MaterialTheme.colorScheme.primary else Color.Transparent,
-                contentColor = if (isMapView) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(imageVector = Icons.Default.Map, contentDescription = "Map", modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Map", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
-                }
-            }
+        Row(
+            modifier = Modifier
+                .clickable { onToggle(!isMapView) }
+                .padding(horizontal = 24.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = if (isMapView) Icons.Default.ViewList else Icons.Default.Map,
+                contentDescription = if (isMapView) "List View" else "Map View",
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = if (isMapView) "List" else "Map",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }

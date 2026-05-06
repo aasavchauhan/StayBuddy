@@ -49,7 +49,7 @@ fun MainApp(viewModel: MainViewModel = hiltViewModel()) {
         Screen.Home.route,
         Screen.Search.route,
         Screen.RoommateList.route,
-        Screen.AddListing.ROUTE,
+        Screen.AddListing.createRoute(null),
         Screen.OwnerDashboard.route,
         Screen.OwnerInquiries.route,
         Screen.ChatList.route,

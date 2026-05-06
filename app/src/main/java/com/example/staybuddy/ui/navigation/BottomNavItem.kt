@@ -27,18 +27,18 @@ data class BottomNavItem(
 
 object BottomNavItems {
     val studentItems = listOf(
-        BottomNavItem("Home", Screen.Home.route, Icons.Filled.Home, Icons.Outlined.Home),
-        BottomNavItem("Search", Screen.Search.route, Icons.Filled.Search, Icons.Outlined.Search),
-        BottomNavItem("Roommate", Screen.RoommateList.route, Icons.Filled.Add, Icons.Outlined.Add),
-        BottomNavItem("Chats", Screen.ChatList.route, Icons.Filled.Chat, Icons.Outlined.Chat),
-        BottomNavItem("Profile", Screen.Profile.route, Icons.Filled.Person, Icons.Outlined.Person)
+        BottomNavItem("Home", Screen.Home.route, selectedIcon = Icons.Filled.Home, unselectedIcon = Icons.Outlined.Home),
+        BottomNavItem("Search", Screen.Search.route, selectedIcon = Icons.Filled.Search, unselectedIcon = Icons.Outlined.Search),
+        BottomNavItem("Roommate", Screen.RoommateList.route, selectedIcon = Icons.Filled.Add, unselectedIcon = Icons.Outlined.Add),
+        BottomNavItem("Chats", Screen.ChatList.route, selectedIcon = Icons.Filled.Chat, unselectedIcon = Icons.Outlined.Chat),
+        BottomNavItem("Profile", Screen.Profile.route, selectedIcon = Icons.Filled.Person, unselectedIcon = Icons.Outlined.Person)
     )
 
     val ownerItems = listOf(
-        BottomNavItem("Dashboard", Screen.OwnerDashboard.route, Icons.Filled.Dashboard, Icons.Outlined.Dashboard),
-        BottomNavItem("Inquiries", Screen.OwnerInquiries.route, Icons.AutoMirrored.Filled.List, Icons.AutoMirrored.Outlined.List),
-        BottomNavItem("Add PG", Screen.AddListing.ROUTE, Screen.AddListing.createRoute(null), Icons.Filled.Add, Icons.Outlined.Add),
-        BottomNavItem("Chats", Screen.ChatList.route, Icons.Filled.Chat, Icons.Outlined.Chat),
-        BottomNavItem("Profile", Screen.Profile.route, Icons.Filled.Person, Icons.Outlined.Person)
+        BottomNavItem("Dashboard", Screen.OwnerDashboard.route, selectedIcon = Icons.Filled.Dashboard, unselectedIcon = Icons.Outlined.Dashboard),
+        BottomNavItem("Inquiries", Screen.OwnerInquiries.route, selectedIcon = Icons.AutoMirrored.Filled.List, unselectedIcon = Icons.AutoMirrored.Outlined.List),
+        BottomNavItem("Add PG", Screen.AddListing.createRoute(null), selectedIcon = Icons.Filled.Add, unselectedIcon = Icons.Outlined.Add),
+        BottomNavItem("Chats", Screen.ChatList.route, selectedIcon = Icons.Filled.Chat, unselectedIcon = Icons.Outlined.Chat),
+        BottomNavItem("Profile", Screen.Profile.route, selectedIcon = Icons.Filled.Person, unselectedIcon = Icons.Outlined.Person)
     )
 }
