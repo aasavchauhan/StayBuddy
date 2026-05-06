@@ -148,7 +148,8 @@ fun MapViewScreen(
                         val listing = uiState.listings[page]
                         CompactMapCard(
                             listing = listing,
-                            onCardClick = { onNavigateToListingDetail(listing.listingId) }
+                            onCardClick = { onNavigateToListingDetail(listing.listingId) },
+                            showFavorite = false
                         )
                     }
                 }

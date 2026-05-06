@@ -30,7 +30,8 @@ import com.example.staybuddy.data.model.PgListing
 fun CompactMapCard(
     listing: PgListing,
     onCardClick: () -> Unit,
-    onFavoriteClick: () -> Unit,
+    onFavoriteClick: (() -> Unit)? = null,
+    showFavorite: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -71,21 +72,23 @@ fun CompactMapCard(
                     modifier = Modifier.fillMaxSize()
                 )
 
-                // Favorite Button
-                IconButton(
-                    onClick = onFavoriteClick,
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(4.dp)
-                        .size(28.dp)
-                        .background(Color.Black.copy(alpha = 0.3f), CircleShape)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.FavoriteBorder,
-                        contentDescription = "Favorite",
-                        tint = Color.White,
-                        modifier = Modifier.size(16.dp)
-                    )
+                // Favorite Button (hidden when favorites are not supported on this screen)
+                if (showFavorite) {
+                    IconButton(
+                        onClick = { onFavoriteClick?.invoke() },
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(4.dp)
+                            .size(28.dp)
+                            .background(Color.Black.copy(alpha = 0.3f), CircleShape)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.FavoriteBorder,
+                            contentDescription = "Favorite",
+                            tint = Color.White,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
                 }
             }
 

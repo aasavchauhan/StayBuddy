@@ -95,6 +95,7 @@ dependencies {
 
     // Maps (osmdroid — free OpenStreetMap, no API key needed)
     implementation(libs.osmdroid.android)
+    implementation(libs.osmbonuspack)
     implementation(libs.play.services.location)
 
     // Hilt DI
@@ -107,6 +108,17 @@ dependencies {
     
     // Cloudinary
     implementation(libs.cloudinary.android)
+
+    // Room
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
+
+    // Retrofit & OkHttp (used by NominatimService / LocationRepository)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging.interceptor)
 
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)
