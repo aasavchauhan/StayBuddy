@@ -149,9 +149,7 @@ fun MapViewScreen(
                         CompactMapCard(
                             listing = listing,
                             onCardClick = { onNavigateToListingDetail(listing.listingId) },
-                            // MapViewModel doesn't manage favorites; favorite toggling is
-                            // intentionally disabled on the map screen.
-                            onFavoriteClick = {}
+                            showFavorite = false
                         )
                     }
                 }
