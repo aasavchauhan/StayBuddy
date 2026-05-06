@@ -86,6 +86,7 @@ dependencies {
     implementation(libs.firebase.storage.ktx)
     implementation(libs.firebase.messaging.ktx)
     implementation(libs.firebase.analytics.ktx)
+    implementation(libs.firebase.config.ktx)
 
     // Google Sign-In & Credential Manager
     implementation(libs.play.services.auth)
@@ -129,12 +130,6 @@ dependencies {
 
     // Accompanist
     implementation(libs.accompanist.permissions)
-
-    // Stream Chat
-    implementation(libs.stream.chat.compose)
-    implementation(libs.stream.chat.offline)
-    implementation(libs.stream.chat.push.firebase)
-
 
     // Core & AppCompat
     implementation(libs.androidx.core.ktx)
