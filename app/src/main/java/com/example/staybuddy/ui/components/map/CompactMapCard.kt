@@ -30,7 +30,7 @@ import com.example.staybuddy.data.model.PgListing
 fun CompactMapCard(
     listing: PgListing,
     onCardClick: () -> Unit,
-    onFavoriteClick: () -> Unit = {},
+    onFavoriteClick: (() -> Unit)? = null,
     showFavorite: Boolean = true,
     modifier: Modifier = Modifier
 ) {
@@ -75,7 +75,7 @@ fun CompactMapCard(
                 // Favorite Button (hidden when favorites are not supported on this screen)
                 if (showFavorite) {
                     IconButton(
-                        onClick = onFavoriteClick,
+                        onClick = { onFavoriteClick?.invoke() },
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .padding(4.dp)
